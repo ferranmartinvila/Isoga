@@ -120,15 +120,6 @@ public:
 	// Load new map
 	bool Load(const char* path);
 
-	iPoint MapToWorld(int x, int y) const;
-	iPoint WorldToMap(int x, int y) const;
-
-	// BFS
-	void PropagateBFS();
-	void DrawBFS();
-	bool IsWalkable(int x, int y) const;
-	void ResetBFS();
-
 private:
 
 	bool LoadMap();
@@ -137,11 +128,14 @@ private:
 	bool LoadLayer(pugi::xml_node& node, MapLayer* layer);
 	bool LoadProperties(pugi::xml_node& node, Properties& properties);
 
-	TileSet* GetTilesetFromTileId(int id) const;
-
 public:
 
 	MapData data;
+
+	bool IsWalkable(int x, int y) const;
+	TileSet* GetTilesetFromTileId(int id) const;
+	iPoint MapToWorld(int x, int y) const;
+	iPoint WorldToMap(int x, int y) const;
 
 private:
 
@@ -149,9 +143,6 @@ private:
 	p2SString			folder;
 	bool				map_loaded;
 
-	/// BFS
-	p2Queue<iPoint>		frontier;
-	p2List<iPoint>		visited;
 };
 
 #endif // __j1MAP_H__

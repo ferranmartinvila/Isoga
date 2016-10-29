@@ -63,6 +63,25 @@ public:
 	}
 
 	/**
+	*If find the data return the index else return -1
+	*/
+	unsigned int find(tdata data)const {
+
+		uint index = 0;
+		p2Queue_item<tdata>* temp = start;
+		
+		while (temp != NULL) {
+			
+			if (temp->data == data)return index;
+			
+
+			temp = temp->next;
+			index++;
+		}
+		return -1;
+	}
+
+	/**
 	* Get last item
 	*/
 	p2Queue_item<tdata>* GetLast()

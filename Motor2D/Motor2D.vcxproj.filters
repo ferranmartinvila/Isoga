@@ -37,6 +37,9 @@
     <ClCompile Include="j1App.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="j1Pathfinding.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="j1Window.h">
@@ -95,6 +98,9 @@
     </ClInclude>
     <ClInclude Include="j1App.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="j1Pathfinding.h">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -23,96 +23,14 @@ bool j1Map::Awake(pugi::xml_node& config)
 	bool ret = true;
 
 	folder.create(config.child("folder").child_value());
-	ResetBFS();
 
 	return ret;
-}
-
-void j1Map::ResetBFS()
-{
-	frontier.Clear();
-	visited.clear();
-	frontier.Push(iPoint(19, 4));
-	visited.add(iPoint(19, 4));
-}
-
-void j1Map::PropagateBFS()
-{
-	// TODO 1: If frontier queue contains elements
-	// pop the last one and calculate its 4 neighbors
-	uint k = frontier.Count();
-	for(k; k > 0;k--){
-
-		iPoint point;
-		if (frontier.start != NULL) {
-
-			frontier.Pop(point);
-
-			if (visited.find(point) == -1)visited.add(point);
-
-			iPoint neighbor[4];
-
-			neighbor[0] = { point.x - 1,point.y };
-			neighbor[1] = { point.x + 1,point.y };
-			neighbor[2] = { point.x,point.y - 1 };
-			neighbor[3] = { point.x,point.y + 1 };
-
-			for (uint j = 0; j < 4; j++) {
-
-				if (visited.find(neighbor[j]) == -1 && IsWalkable(neighbor[j].x, neighbor[j].y)){
-					
-					frontier.Push(neighbor[j]);
-					visited.add(neighbor[j]);
-
-				}
-
-			}
-		}
-
-	}
-	// TODO 2: For each neighbor, if not visited, add it
-	// to the frontier queue and visited list
-}
-
-void j1Map::DrawBFS()
-{
-	iPoint point;
-
-	// Draw visited
-	p2List_item<iPoint>* item = visited.start;
-
-	while(item)
-	{
-		point = item->data;
-		TileSet* tileset = GetTilesetFromTileId(26);
-
-		SDL_Rect r = tileset->GetTileRect(26);
-		iPoint pos = MapToWorld(point.x, point.y);
-
-		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
-
-		item = item->next;
-	}
-
-	// Draw frontier
-	for (uint i = 0; i < frontier.Count(); ++i)
-	{
-		point = *(frontier.Peek(i));
-		TileSet* tileset = GetTilesetFromTileId(25);
-
-		SDL_Rect r = tileset->GetTileRect(25);
-		iPoint pos = MapToWorld(point.x, point.y);
-
-		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
-	}
-
 }
 
 bool j1Map::IsWalkable(int x, int y) const
 {
 	bool ret = false;
-	// TODO 3: return true only if x and y are within map limits
-	// and the tile is walkable (tile id 0 in the navigation layer)
+
 	if (x < App->map->data.width && x >= 0 && y < App->map->data.height&& y >= 0) {
 		ret = true;
 	}
@@ -160,8 +78,6 @@ void j1Map::Draw()
 			}
 		}
 	}
-
-	DrawBFS();
 }
 
 int Properties::Get(const char* value, int default_value) const

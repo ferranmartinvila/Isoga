@@ -7,6 +7,7 @@
 #include "j1Render.h"
 #include "j1Window.h"
 #include "j1Map.h"
+#include "j1Pathfinding.h"
 #include "j1Scene.h"
 
 j1Scene::j1Scene() : j1Module()
@@ -30,8 +31,10 @@ bool j1Scene::Awake()
 // Called before the first frame
 bool j1Scene::Start()
 {
+	//Load the map
 	App->map->Load("iso_walk.tmx");
-	
+	//Load and play the music
+	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
 	return true;
 }
 
@@ -62,16 +65,23 @@ bool j1Scene::Update(float dt)
 	if(App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
 		App->render->camera.x -= 1;
 
+	if (App->input->GetMouseButtonDown(1) == KEY_DOWN) {
+		int x, y;
+		App->input->GetMousePosition(x, y);
+		App->pathfinding->SetPathStart(App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y));
+	}
+	
 	if (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN)
-		App->map->ResetBFS();
+		App->pathfinding->ResetBFS();
 
 	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
-		App->map->PropagateBFS();
+		App->pathfinding->PropagateBFS();
 
 	if (App->input->GetKey(SDL_SCANCODE_M) == KEY_REPEAT)
-		App->map->PropagateBFS();
+		App->pathfinding->PropagateBFS();
 
 	App->map->Draw();
+	App->pathfinding->Draw();
 
 	int x, y;
 	App->input->GetMousePosition(x, y);
