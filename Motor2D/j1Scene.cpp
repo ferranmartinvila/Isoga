@@ -70,6 +70,12 @@ bool j1Scene::Update(float dt)
 		App->input->GetMousePosition(x, y);
 		App->pathfinding->SetPathStart(App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y));
 	}
+
+	if (App->input->GetMouseButtonDown(3) == KEY_DOWN) {
+		int x, y;
+		App->input->GetMousePosition(x, y);
+		App->pathfinding->SetPathGoal(App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y));
+	}
 	
 	if (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN)
 		App->pathfinding->ResetBFS();

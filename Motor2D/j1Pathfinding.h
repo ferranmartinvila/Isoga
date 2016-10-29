@@ -22,6 +22,9 @@ public:
 	// Called before render is available
 	bool Awake(pugi::xml_node& conf);
 
+	// Called before game loop
+	bool Start();
+
 	// Called each loop iteration
 	void Draw();
 
@@ -30,6 +33,7 @@ public:
 
 	// BFS
 	bool SetPathStart(iPoint coordenate);
+	bool SetPathGoal(iPoint coordenate);
 	void PropagateBFS();
 	void DrawBFS();
 	void ResetBFS();
@@ -43,6 +47,9 @@ private:
 
 	iPoint start;
 	iPoint goal;
+
+	//Textures
+	SDL_Texture* tex_goal;
 };
 
 #endif // __j1PATHFINDING_H__
