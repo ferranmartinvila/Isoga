@@ -32,9 +32,12 @@ bool j1Scene::Awake()
 bool j1Scene::Start()
 {
 	//Load the map
-	App->map->Load("iso_walk.tmx");
+	App->map->Load("iso_map.tmx");
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
+
+	//Load Fx
+	
 	return true;
 }
 
@@ -54,16 +57,16 @@ bool j1Scene::Update(float dt)
 		App->SaveGame("save_game.xml");
 
 	if(App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
-		App->render->camera.y += 1;
+		App->render->camera.y += 5;
 
 	if(App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
-		App->render->camera.y -= 1;
+		App->render->camera.y -= 5;
 
 	if(App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
-		App->render->camera.x += 1;
+		App->render->camera.x += 5;
 
 	if(App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-		App->render->camera.x -= 1;
+		App->render->camera.x -= 5;
 
 	if (App->input->GetMouseButtonDown(1) == KEY_DOWN) {
 		int x, y;
@@ -78,13 +81,16 @@ bool j1Scene::Update(float dt)
 	}
 	
 	if (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN)
-		App->pathfinding->ResetBFS();
+		App->pathfinding->ResetPath();
 
-	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 		App->pathfinding->PropagateBFS();
 
 	if (App->input->GetKey(SDL_SCANCODE_M) == KEY_REPEAT)
 		App->pathfinding->PropagateBFS();
+
+	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
+		App->pathfinding->PropagateDijkstra();
 
 	App->map->Draw();
 	App->pathfinding->Draw();

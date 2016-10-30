@@ -31,12 +31,22 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-	// BFS
+	//Path functions
 	bool SetPathStart(iPoint coordenate);
 	bool SetPathGoal(iPoint coordenate);
+
+	//BFS functions
 	void PropagateBFS();
 	void DrawBFS();
-	void ResetBFS();
+
+	//Dijkstra functions
+	void PropagateDijkstra();
+	void DrawDijkstra();
+
+	//A* functions
+
+
+	void ResetPath();
 
 private:
 
@@ -50,6 +60,9 @@ private:
 
 	//Textures
 	SDL_Texture* tex_goal;
+
+	//Fx
+	uint goal_find;
 };
 
 #endif // __j1PATHFINDING_H__

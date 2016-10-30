@@ -36,7 +36,7 @@ bool j1Map::IsWalkable(int x, int y) const
 	}
 	p2List_item<MapLayer*>* layer = App->map->data.layers.start;
 	MapLayer* nav_layer;
-	while (layer->data->properties.Get("Navigation") == 0) {
+	while (layer->data->properties.Get("Navigation") == false) {
 		layer = layer->next;
 	}
 	nav_layer = layer->data;
@@ -58,7 +58,7 @@ void j1Map::Draw()
 	{
 		MapLayer* layer = item->data;
 
-		if(layer->properties.Get("Nodraw") != 0)
+		if(layer->properties.Get("Draw") != false)
 			continue;
 
 		for(int y = 0; y < data.height; ++y)
@@ -80,7 +80,7 @@ void j1Map::Draw()
 	}
 }
 
-int Properties::Get(const char* value, int default_value) const
+int Properties::Get(const char* value, bool default_value) const
 {
 	p2List_item<Property*>* item = list.start;
 
@@ -468,7 +468,7 @@ bool j1Map::LoadProperties(pugi::xml_node& node, Properties& properties)
 			Properties::Property* p = new Properties::Property();
 
 			p->name = prop.attribute("name").as_string();
-			p->value = prop.attribute("value").as_int();
+			p->value = prop.attribute("value").as_bool();
 
 			properties.list.add(p);
 		}

@@ -6,6 +6,8 @@
 #include "j1Textures.h"
 #include "j1Map.h"
 #include "j1Pathfinding.h"
+#include "j1Audio.h"
+#include "j1Scene.h"
 #include <math.h>
 
 j1Pathfinding::j1Pathfinding() : j1Module()
@@ -30,13 +32,14 @@ bool j1Pathfinding::Start() {
 	bool ret = true;
 
 	tex_goal = App->tex->Load("textures/goal_texture.png");
+	goal_find = App->audio->LoadFx("audio/fx/goal_find.wav");
 
 	return ret;
 }
 
 bool j1Pathfinding::SetPathStart(iPoint coordenate) {
 	
-	if (App->map->IsWalkable(coordenate.x, coordenate.y)) {
+	if (App->map->IsWalkable(coordenate.x, coordenate.y) && close.find(coordenate) == -1) {
 		start = coordenate;
 		open.Push(start);
 		close.add(start);
@@ -58,7 +61,7 @@ bool j1Pathfinding::SetPathGoal(iPoint coordenate) {
 	return correct_path;
 }
 
-void j1Pathfinding::ResetBFS()
+void j1Pathfinding::ResetPath()
 {
 	open.Clear();
 	close.clear();
@@ -66,37 +69,38 @@ void j1Pathfinding::ResetBFS()
 
 void j1Pathfinding::PropagateBFS()
 {
-	uint k = close.count();
-	
-	//for (k; k > 0; k--) {
 
-		iPoint point;
-		if (open.start != NULL && close.find(goal) == -1) {
+	if (close.find(goal) != -1) {
+		App->audio->PlayFx(goal_find);
+		return;
+	}
 
-			open.Pop(point);
+	iPoint point;
+		
+	if (open.start != NULL && close.find(goal) == -1) {
 
-			if (open.find(point) == -1)close.add(point);
+		open.Pop(point);
 
-			iPoint neighbor[4];
+		if (open.find(point) == -1)close.add(point);
 
-			neighbor[0] = { point.x - 1,point.y };
-			neighbor[1] = { point.x + 1,point.y };
-			neighbor[2] = { point.x,point.y - 1 };
-			neighbor[3] = { point.x,point.y + 1 };
+		iPoint neighbor[4];
 
-			for (uint j = 0; j < 4; j++) {
+		neighbor[0] = { point.x - 1,point.y };
+		neighbor[1] = { point.x + 1,point.y };
+		neighbor[2] = { point.x,point.y - 1 };
+		neighbor[3] = { point.x,point.y + 1 };
 
-				if (close.find(neighbor[j]) == -1 && App->map->IsWalkable(neighbor[j].x, neighbor[j].y)) {
+		for (uint j = 0; j < 4; j++) {
 
-					open.Push(neighbor[j]);
-					close.add(neighbor[j]);
+			if (close.find(neighbor[j]) == -1 && App->map->IsWalkable(neighbor[j].x, neighbor[j].y)) {
 
-				}
+				open.Push(neighbor[j]);
+				close.add(neighbor[j]);
 
 			}
-		}
 
-	//}
+		}
+	}
 }
 
 void j1Pathfinding::DrawBFS()
@@ -109,9 +113,9 @@ void j1Pathfinding::DrawBFS()
 	while (item)
 	{
 		point = item->data;
-		TileSet* tileset = App->map->GetTilesetFromTileId(26);
+		TileSet* tileset = App->map->GetTilesetFromTileId(50);
 
-		SDL_Rect r = tileset->GetTileRect(26);
+		SDL_Rect r = tileset->GetTileRect(50);
 		iPoint pos = App->map->MapToWorld(point.x, point.y);
 
 		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
@@ -123,9 +127,9 @@ void j1Pathfinding::DrawBFS()
 	for (uint i = 0; i < open.Count(); ++i)
 	{
 		point = *(open.Peek(i));
-		TileSet* tileset = App->map->GetTilesetFromTileId(25);
+		TileSet* tileset = App->map->GetTilesetFromTileId(49);
 
-		SDL_Rect r = tileset->GetTileRect(25);
+		SDL_Rect r = tileset->GetTileRect(49);
 		iPoint pos = App->map->MapToWorld(point.x, point.y);
 
 		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
@@ -140,6 +144,46 @@ void j1Pathfinding::DrawBFS()
 	}
 
 }
+
+void j1Pathfinding::PropagateDijkstra() {
+
+	if (close.find(goal) != -1) {
+		App->audio->PlayFx(goal_find); 
+		return;
+	}
+
+	iPoint point;
+
+	if (open.start != NULL) {
+
+		open.Pop(point);
+
+		if (open.find(point) == -1)close.add(point);
+
+		iPoint neighbor[4];
+
+		neighbor[0] = { point.x - 1, point.y };
+		neighbor[1] = { point.x + 1, point.y };
+		neighbor[2] = { point.x, point.y - 1 };
+		neighbor[3] = { point.x, point.y + 1 };
+
+		for (uint k = 0; k < 4; k++) {
+
+			if (close.find(neighbor[k]) == -1 && App->map->IsWalkable(neighbor[k].x, neighbor[k].y)) {
+
+
+				close.add(neighbor[k]);
+				open.Push(neighbor[k]);
+
+
+			}
+
+		}
+
+	}
+}
+
+
 
 void j1Pathfinding::Draw()
 {
