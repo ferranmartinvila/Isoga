@@ -16,9 +16,8 @@ j1FileSystem::j1FileSystem() : j1Module()
 	PHYSFS_init(base_path);
 	SDL_free(base_path);
 
-	// By default we include executable's own directory
-	// without this we won't be able to find config.xml :-(
 	AddPath(".");
+
 }
 
 // Destructor

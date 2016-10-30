@@ -83,10 +83,7 @@ bool j1Scene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN)
 		App->pathfinding->ResetPath();
 
-	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
-		App->pathfinding->PropagateBFS();
-
-	if (App->input->GetKey(SDL_SCANCODE_M) == KEY_REPEAT)
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_REPEAT)
 		App->pathfinding->PropagateBFS();
 
 	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_REPEAT)
