@@ -14,10 +14,11 @@
 template<class tdata>
 struct p2Queue_item
 {
-	tdata                 data;
-	p2Queue_item<tdata>*   next;
+	tdata				    data;
+	int						priority;
+	p2Queue_item<tdata>*	next;
 
-	inline p2Queue_item(const tdata& _data) : data(_data), next(NULL)
+	inline p2Queue_item(const tdata& _data, int priority) : data(_data), next(NULL),priority(priority)
 	{}
 };
 
@@ -97,10 +98,10 @@ public:
 	/**
 	* push new item
 	*/
-	void Push(const tdata& item)
+	void Push(const tdata& item, int priority)
 	{
 		p2Queue_item<tdata>*   p_data_item;
-		p_data_item = new p2Queue_item < tdata >(item);
+		p_data_item = new p2Queue_item < tdata >(item, priority);
 
 		p2Queue_item<tdata>* last = GetLast();
 
@@ -110,7 +111,20 @@ public:
 		}
 		else
 		{
-			last->next = p_data_item;
+			p2Queue_item<tdata>* prev = start;
+			p2Queue_item<tdata>* tmp = start;
+
+			while (tmp && tmp->priority <= priority)
+			{
+				prev = tmp;
+				tmp = tmp->next;
+			}
+
+			p_data_item->next = tmp;
+			if (tmp == start)
+				start = p_data_item;
+			else
+				prev->next = p_data_item;
 		}
 	}
 

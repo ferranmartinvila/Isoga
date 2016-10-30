@@ -8,6 +8,15 @@
 #include "j1Module.h"
 
 
+enum TERRAIN {
+
+	GRASS = 27,
+	WATER,
+	MUD,
+	DEEP_WATER
+
+};
+
 // ----------------------------------------------------
 class j1Pathfinding : public j1Module
 {
@@ -37,11 +46,9 @@ public:
 
 	//BFS functions
 	void PropagateBFS();
-	void DrawBFS();
 
 	//Dijkstra functions
 	void PropagateDijkstra();
-	void DrawDijkstra();
 
 	//A* functions
 

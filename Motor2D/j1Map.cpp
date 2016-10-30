@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "p2Defs.h"
 #include "p2Log.h"
 #include "j1App.h"
@@ -42,9 +43,21 @@ bool j1Map::IsWalkable(int x, int y) const
 	nav_layer = layer->data;
 
 
-	if (nav_layer->Get(x, y) != 0)ret = false;
+	if (nav_layer->Get(x, y) == 30)ret = false;
 
 	return ret;
+}
+
+uint j1Map::MovementCost(int x, int y)const {
+
+	int id = 0;
+
+	if (x >= 0 && x < data.width && y >= 0 && y < data.height)
+	{
+		id = data.layers.start->next->data->Get(x, y);
+	}
+
+	return id;
 }
 
 void j1Map::Draw()
@@ -58,7 +71,7 @@ void j1Map::Draw()
 	{
 		MapLayer* layer = item->data;
 
-		if(layer->properties.Get("Draw") != false)
+		if(layer->properties.Get("Draw") == false)
 			continue;
 
 		for(int y = 0; y < data.height; ++y)
@@ -425,9 +438,20 @@ bool j1Map::LoadLayer(pugi::xml_node& node, MapLayer* layer)
 {
 	bool ret = true;
 
+	//Get layer name
 	layer->name = node.attribute("name").as_string();
+	LOG("Layer Name: %s", layer->name.GetString());
+	//Get layer width
 	layer->width = node.attribute("width").as_int();
+	LOG("Layer Width: %u", layer->width);
+	//Get layer height
 	layer->height = node.attribute("height").as_int();
+	LOG("Layer Height: %u", layer->height);
+	//Get layer data encoding
+	layer->encoding = node.child("data").attribute("encoding").as_string();
+	LOG("Layer Data Encoding: %s", layer->encoding.GetString());
+	
+	//Load advanced properties
 	LoadProperties(node, layer->properties);
 	pugi::xml_node layer_data = node.child("data");
 
@@ -439,13 +463,35 @@ bool j1Map::LoadLayer(pugi::xml_node& node, MapLayer* layer)
 	}
 	else
 	{
+
 		layer->data = new uint[layer->width*layer->height];
 		memset(layer->data, 0, layer->width*layer->height);
 
 		int i = 0;
-		for(pugi::xml_node tile = layer_data.child("tile"); tile; tile = tile.next_sibling("tile"))
-		{
-			layer->data[i++] = tile.attribute("gid").as_int(0);
+
+		if (layer->encoding == "") {
+			
+			for (pugi::xml_node tile = layer_data.child("tile"); tile; tile = tile.next_sibling("tile"))
+			{
+				layer->data[i++] = tile.attribute("gid").as_int(0);
+			}
+		}
+
+		else if (layer->encoding == "csv") {
+
+			i = 0;
+
+			p2SString layer_tiles = layer_data.child_value();
+
+			char* test = strtok((char*)layer_tiles.GetString(), ",");
+
+			while (test != NULL) {
+				test = strtok(NULL, ",");
+				if (test == NULL)continue;
+				if (*test == '\n')test++;
+				layer->data[i++] = atoi(test);
+			}
+
 		}
 	}
 

@@ -13,7 +13,7 @@ struct Properties
 	struct Property
 	{
 		p2SString name;
-		int value;
+		bool value;
 	};
 
 	~Properties()
@@ -41,6 +41,7 @@ struct MapLayer
 	p2SString	name;
 	int			width;
 	int			height;
+	p2SString	encoding;
 	uint*		data;
 	Properties	properties;
 
@@ -133,6 +134,8 @@ public:
 	MapData data;
 
 	bool IsWalkable(int x, int y) const;
+	uint MovementCost(int x, int y)const;
+
 	TileSet* GetTilesetFromTileId(int id) const;
 	iPoint MapToWorld(int x, int y) const;
 	iPoint WorldToMap(int x, int y) const;

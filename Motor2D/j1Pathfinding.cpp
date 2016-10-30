@@ -41,7 +41,7 @@ bool j1Pathfinding::SetPathStart(iPoint coordenate) {
 	
 	if (App->map->IsWalkable(coordenate.x, coordenate.y) && close.find(coordenate) == -1) {
 		start = coordenate;
-		open.Push(start);
+		open.Push(start,0);
 		close.add(start);
 		correct_path = true;
 	}
@@ -94,55 +94,13 @@ void j1Pathfinding::PropagateBFS()
 
 			if (close.find(neighbor[j]) == -1 && App->map->IsWalkable(neighbor[j].x, neighbor[j].y)) {
 
-				open.Push(neighbor[j]);
+				open.Push(neighbor[j],0);
 				close.add(neighbor[j]);
 
 			}
 
 		}
 	}
-}
-
-void j1Pathfinding::DrawBFS()
-{
-	iPoint point;
-
-	// Draw visited
-	p2List_item<iPoint>* item = close.start;
-
-	while (item)
-	{
-		point = item->data;
-		TileSet* tileset = App->map->GetTilesetFromTileId(50);
-
-		SDL_Rect r = tileset->GetTileRect(50);
-		iPoint pos = App->map->MapToWorld(point.x, point.y);
-
-		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
-
-		item = item->next;
-	}
-
-	// Draw frontier
-	for (uint i = 0; i < open.Count(); ++i)
-	{
-		point = *(open.Peek(i));
-		TileSet* tileset = App->map->GetTilesetFromTileId(49);
-
-		SDL_Rect r = tileset->GetTileRect(49);
-		iPoint pos = App->map->MapToWorld(point.x, point.y);
-
-		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
-	}
-
-	//Draw goal
-	if (App->map->IsWalkable(goal.x,goal.y)) {
-		
-		iPoint pos = App->map->MapToWorld(goal.x, goal.y);
-
-		App->render->Blit(tex_goal, pos.x, pos.y);
-	}
-
 }
 
 void j1Pathfinding::PropagateDijkstra() {
@@ -171,16 +129,15 @@ void j1Pathfinding::PropagateDijkstra() {
 
 			if (close.find(neighbor[k]) == -1 && App->map->IsWalkable(neighbor[k].x, neighbor[k].y)) {
 
-
-				close.add(neighbor[k]);
-				open.Push(neighbor[k]);
-
+					close.add(neighbor[k]);
+					open.Push(neighbor[k], App->map->MovementCost(neighbor[k].x, neighbor[k].y));
 
 			}
 
 		}
 
 	}
+
 }
 
 
@@ -188,7 +145,41 @@ void j1Pathfinding::PropagateDijkstra() {
 void j1Pathfinding::Draw()
 {
 	
-	DrawBFS();
+	iPoint point;
+
+	// Draw visited
+	p2List_item<iPoint>* item = close.start;
+
+	while (item)
+	{
+		point = item->data;
+		TileSet* tileset = App->map->GetTilesetFromTileId(26);
+
+		SDL_Rect r = tileset->GetTileRect(26);
+		iPoint pos = App->map->MapToWorld(point.x, point.y);
+
+		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
+
+		item = item->next;
+	}
+
+	// Draw frontier
+	for (uint i = 0; i < open.Count(); ++i)
+	{
+		point = *(open.Peek(i));
+		TileSet* tileset = App->map->GetTilesetFromTileId(25);
+
+		SDL_Rect r = tileset->GetTileRect(25);
+		iPoint pos = App->map->MapToWorld(point.x, point.y);
+
+		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
+	}
+
+	//Draw goal
+
+	iPoint pos = App->map->MapToWorld(goal.x, goal.y);
+
+	App->render->Blit(tex_goal, pos.x, pos.y);
 
 }
 

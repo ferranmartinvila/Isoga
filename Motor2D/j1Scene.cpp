@@ -32,7 +32,7 @@ bool j1Scene::Awake()
 bool j1Scene::Start()
 {
 	//Load the map
-	App->map->Load("iso_map.tmx");
+	App->map->Load("iso_walk.tmx");
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
 
@@ -89,7 +89,7 @@ bool j1Scene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_M) == KEY_REPEAT)
 		App->pathfinding->PropagateBFS();
 
-	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_REPEAT)
 		App->pathfinding->PropagateDijkstra();
 
 	App->map->Draw();
