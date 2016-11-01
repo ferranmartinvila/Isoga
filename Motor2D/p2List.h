@@ -94,17 +94,17 @@ public:
 	*/
 	bool del(p2List_item<tdata>* item)
 	{
-		if(item == NULL)
+		if (item == NULL)
 		{
 			return (false);
 		}
 
 		// Now reconstruct the list
-		if(item->prev != NULL)
+		if (item->prev != NULL)
 		{
 			item->prev->next = item->next;
 
-			if(item->next != NULL)
+			if (item->next != NULL)
 			{
 				item->next->prev = item->prev;
 			}
@@ -115,7 +115,7 @@ public:
 		}
 		else
 		{
-			if(item->next)
+			if (item->next)
 			{
 				item->next->prev = NULL;
 				start = item->next;
