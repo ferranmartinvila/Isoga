@@ -133,8 +133,8 @@ public:
 
 	MapData data;
 
-	bool IsWalkable(int x, int y) const;
-	uint MovementCost(int x, int y)const;
+	bool CreateWalkabilityMap(int& width, int & height, uchar** buffer)const;
+
 
 	TileSet* GetTilesetFromTileId(int id) const;
 	iPoint MapToWorld(int x, int y) const;

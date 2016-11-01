@@ -28,36 +28,51 @@ bool j1Map::Awake(pugi::xml_node& config)
 	return ret;
 }
 
-bool j1Map::IsWalkable(int x, int y) const
-{
+bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const {
+		
 	bool ret = false;
+	p2List_item<MapLayer*>* item;
+	item = data.layers.start;
 
-	if (x < App->map->data.width && x >= 0 && y < App->map->data.height&& y >= 0) {
+	for (item = data.layers.start; item != NULL; item = item->next)
+	{
+		MapLayer* layer = item->data;
+
+		if (layer->properties.Get("Navigation") == false)
+			continue;
+
+		uchar* map = new uchar[layer->width*layer->height];
+		memset(map, 1, layer->width*layer->height);
+
+		for (int y = 0; y < data.height; ++y)
+		{
+			for (int x = 0; x < data.width; ++x)
+			{
+				int i = (y*layer->width) + x;
+
+				int tile_id = layer->Get(x, y);
+				TileSet* tileset = (tile_id > 0) ? GetTilesetFromTileId(tile_id) : NULL;
+
+				if (tileset != NULL)
+				{
+
+					map[i] = (tile_id - tileset->firstgid) > 0 ? 0 : 1;
+					LOG("Map[%i] %i", i, map[i]);
+
+				}
+			}
+		}
+
+		*buffer = map;
+		width = data.width;
+		height = data.height;
 		ret = true;
-	}
-	p2List_item<MapLayer*>* layer = App->map->data.layers.start;
-	MapLayer* nav_layer;
-	while (layer->data->properties.Get("Navigation") == false) {
-		layer = layer->next;
-	}
-	nav_layer = layer->data;
 
-
-	if (nav_layer->Get(x, y) == 30)ret = false;
+		break;
+	}
 
 	return ret;
-}
-
-uint j1Map::MovementCost(int x, int y)const {
-
-	int id = 0;
-
-	if (x >= 0 && x < data.width && y >= 0 && y < data.height)
-	{
-		id = data.layers.start->next->data->Get(x, y);
-	}
-
-	return id;
+	
 }
 
 void j1Map::Draw()

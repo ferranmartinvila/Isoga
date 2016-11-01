@@ -98,7 +98,7 @@ public:
 	/**
 	* push new item
 	*/
-	void Push(const tdata& item, int priority)
+	void Push(const tdata& item, int priority = 0)
 	{
 		p2Queue_item<tdata>*   p_data_item;
 		p_data_item = new p2Queue_item < tdata >(item, priority);
