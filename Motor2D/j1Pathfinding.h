@@ -52,7 +52,7 @@ public:
 	void SetWalkabilityMap(uint width, uint height, uchar* data);
 
 	//create a path from a to b
-	int CreatePath(const iPoint& origin, const iPoint& destination);
+	int CreatePath(const iPoint& origin, const iPoint& destination, bool diagonals);
 
 	const p2DynArray<iPoint>* GetLastPath() const;
 
@@ -118,8 +118,9 @@ struct PathNode
 	PathNode(int g, int h, const iPoint& pos, const PathNode* parent);
 	PathNode(const PathNode& node);
 
-	// Fills a list (PathList) of all valid adjacent pathnodes
-	uint FindWalkableAdjacents(PathList& list_to_fill) const;
+	// Fills a list (PathList) all valid adjacent pathnodes
+	uint FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) const;
+	
 	// Calculates this tile score
 	int Score() const;
 	// Calculate the F for a specific destination tile

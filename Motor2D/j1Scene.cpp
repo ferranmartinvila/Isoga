@@ -120,10 +120,11 @@ bool j1Scene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_REPEAT)
 		App->pathfinding->PropagateDijkstra();
 
-	if (App->input->GetKey(SDL_SCANCODE_3) == KEY_DOWN) {
-		App->pathfinding->CreatePath(App->pathfinding->start, App->pathfinding->goal);
-	}
+	if (App->input->GetKey(SDL_SCANCODE_3) == KEY_DOWN) 
+		App->pathfinding->CreatePath(App->pathfinding->start, App->pathfinding->goal, false);
 
+	if (App->input->GetKey(SDL_SCANCODE_4) == KEY_DOWN) 
+		App->pathfinding->CreatePath(App->pathfinding->start, App->pathfinding->goal, true);
 
 	//DEBUG------------------------------------------------
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {
@@ -138,7 +139,7 @@ bool j1Scene::Update(float dt)
 	int x, y;
 	App->input->GetMousePosition(x, y);
 	iPoint map_coordinates = App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y);
-	p2SString title("MAP DATA[Map:%dx%d Tiles:%dx%d Tilesets:%d Tile:%d,%d]     TIME DATA[Time: %i:%i%i  FPS: %i Frames: %i]",
+	p2SString title("MAP DATA[Map: %dx%d Tiles: %dx%d Tilesets: %d Tile: %d,%d]     TIME DATA[Time: %i:%i%i  FPS: %i Frames: %i]",
 		App->map->data.width, App->map->data.height,
 		App->map->data.tile_width, App->map->data.tile_height,
 		App->map->data.tilesets.count(),

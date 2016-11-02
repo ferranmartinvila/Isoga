@@ -73,7 +73,7 @@ void j1Pathfinding::SetWalkabilityMap(uint width, uint height, uchar* data)
 	memcpy(walkability_map, data, width*height);
 }
 
-int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
+int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool diagonals) {
 	
 
 	// TODO 1: if origin or destination are not walkable, return -1
@@ -123,7 +123,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
 		// TODO 5: Fill a list of all adjancent nodes
 		PathList adjacent_nodes;
 		
-		close_list.list.end->data.FindWalkableAdjacents(adjacent_nodes);
+		close_list.list.end->data.FindWalkableAdjacents(adjacent_nodes, diagonals);
 
 		// TODO 6: Iterate adjancent nodes:
 		for (p2List_item<PathNode>* adjacent_node = adjacent_nodes.list.start; adjacent_node != NULL; adjacent_node = adjacent_node->next) {
@@ -386,7 +386,7 @@ PathNode::PathNode(const PathNode& node) : g(node.g), h(node.h), pos(node.pos), 
 // PathNode -------------------------------------------------------------------------
 // Fills a list (PathList) of all valid adjacent pathnodes
 // ----------------------------------------------------------------------------------
-uint PathNode::FindWalkableAdjacents(PathList& list_to_fill) const
+uint PathNode::FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) const
 {
 	iPoint cell;
 	uint before = list_to_fill.list.count();
@@ -408,6 +408,29 @@ uint PathNode::FindWalkableAdjacents(PathList& list_to_fill) const
 
 	// west
 	cell.create(pos.x - 1, pos.y);
+	if (App->pathfinding->IsWalkable(cell))
+		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+
+	//diagonal able
+	if(diagonals == false)return list_to_fill.list.count(); 
+
+	//north-east
+	cell.create(pos.x + 1, pos.y + 1);
+	if (App->pathfinding->IsWalkable(cell))
+		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	
+	//north-west
+	cell.create(pos.x - 1, pos.y + 1);
+	if (App->pathfinding->IsWalkable(cell))
+		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	
+	//south-east
+	cell.create(pos.x + 1, pos.y - 1);
+	if (App->pathfinding->IsWalkable(cell))
+		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	
+	//south-west
+	cell.create(pos.x - 1, pos.y - 1);
 	if (App->pathfinding->IsWalkable(cell))
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 
