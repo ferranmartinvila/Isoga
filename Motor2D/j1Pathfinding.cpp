@@ -79,6 +79,9 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
 	if (IsWalkable(origin) == false || IsWalkable(goal) == false)return -1;
 	
 
+	//Clean the last path
+	last_path.Clear();
+
 	// TODO 2: Create two lists: open, close
 	PathList open_list;
 	PathList close_list;
@@ -95,7 +98,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
 	while (open_list.list.count() > 0) {
 
 		// TODO 3: Move the lowest score cell from open list to the closed list
-		in_work  =  close_list.list.add(open_list.GetNodeLowestScore()->data)->data;
+		  close_list.list.add(open_list.GetNodeLowestScore()->data);
 		
 		LOG("G:%i H:%i\n", open_list.GetNodeLowestScore()->data.g, open_list.GetNodeLowestScore()->data.h);
 		
@@ -103,7 +106,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
 
 		
 		// TODO 4: If we just added the destination, we are done!
-		if (in_work.h == 0) {
+		if (close_list.list.end->data.pos == goal) {
 			// Backtrack to create the final path
 			for (p2List_item<PathNode>* node = close_list.list.end; node->data.parent != nullptr; node = close_list.Find(node->data.parent->pos)) {
 
@@ -119,7 +122,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
 		// TODO 5: Fill a list of all adjancent nodes
 		PathList adjacent_nodes;
 		
-		in_work.FindWalkableAdjacents(adjacent_nodes);
+		close_list.list.end->data.FindWalkableAdjacents(adjacent_nodes);
 
 		// TODO 6: Iterate adjancent nodes:
 		for (p2List_item<PathNode>* adjacent_node = adjacent_nodes.list.start; adjacent_node != NULL; adjacent_node = adjacent_node->next) {

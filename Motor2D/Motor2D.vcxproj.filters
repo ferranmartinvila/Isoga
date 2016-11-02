@@ -40,6 +40,12 @@
     <ClCompile Include="j1Pathfinding.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="j1Timer.cpp">
+      <Filter>Tools\Timers</Filter>
+    </ClCompile>
+    <ClCompile Include="j1PerfTimer.cpp">
+      <Filter>Tools\Timers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="j1Window.h">
@@ -102,6 +108,12 @@
     <ClInclude Include="j1Pathfinding.h">
       <Filter>Modules</Filter>
     </ClInclude>
+    <ClInclude Include="j1Timer.h">
+      <Filter>Tools\Timers</Filter>
+    </ClInclude>
+    <ClInclude Include="j1PerfTimer.h">
+      <Filter>Tools\Timers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Tanks">
@@ -121,6 +133,9 @@
     </Filter>
     <Filter Include="Tools\PuguiXML">
       <UniqueIdentifier>{7cb78d67-17cc-45eb-af97-e2106becce7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Timers">
+      <UniqueIdentifier>{ff1d87b0-acc7-400f-8608-908237528e5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
