@@ -18,6 +18,7 @@
 // Constructor
 j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 {
+	timer.Start();
 	frames = 0;
 	want_to_save = want_to_load = false;
 
@@ -44,6 +45,7 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 
 	// render last to swap buffer
 	AddModule(render);
+	LOG("Contructor Time(ms): %.2f", timer.ReadMs());
 }
 
 // Destructor

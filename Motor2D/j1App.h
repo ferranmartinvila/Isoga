@@ -4,6 +4,7 @@
 #include "p2List.h"
 #include "j1Module.h"
 #include "PugiXml\src\pugixml.hpp"
+#include "j1PerfTimer.h"
 
 // Modules
 class j1Window;
@@ -103,6 +104,8 @@ private:
 	bool				want_to_load;
 	p2SString			load_game;
 	mutable p2SString	save_game;
+
+	j1PerfTimer timer;
 };
 
 extern j1App* App; //App external pointer to point all the included modules 
