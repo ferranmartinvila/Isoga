@@ -12,6 +12,7 @@
 
 j1Scene::j1Scene() : j1Module()
 {
+	debug_mode = false;
 	name.create("scene");
 }
 
@@ -45,8 +46,16 @@ bool j1Scene::Start()
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
 
+	//Load textures
+	tex_goal = App->tex->Load("textures/goal_texture.png");
+	tex_path = App->tex->Load("textures/path_texture.png");
+
 	//Load Fx
+	goal_find = App->audio->LoadFx("audio/fx/goal_find.wav");
 	
+	//Load fonts
+	debug_font = App->tex->LoadFont("textures/debug_font.png", "!*#$%&`()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[[]|`", 1);
+
 	return true;
 }
 
@@ -129,13 +138,34 @@ bool j1Scene::Update(float dt)
 	//DEBUG------------------------------------------------
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {
 		App->map->CollideLayer();
+		debug_mode = !debug_mode;
 	}
-
-
 
 	App->map->Draw();
 	App->pathfinding->Draw();
 
+	//FONTS------------------------------------------------
+	if (debug_mode) {
+		//Propagate BFS
+		sprintf_s(debug_text, 25, "%s", "PRESS.[1].PROPAGATE.BFS");
+		App->tex->BlitFont(220, 15, debug_font, debug_text);
+		//Propagate Dijkstra
+		sprintf_s(debug_text, 30, "%s", "PRESS.[2].PROPAGATE.DIJKSTRA");
+		App->tex->BlitFont(264, 30, debug_font, debug_text);
+		//A* without diagonals
+		sprintf_s(debug_text, 24, "%s", "PRESS.[3].PROPAGATE.A*");
+		App->tex->BlitFont(219, 45, debug_font, debug_text);
+		//A* with diagonals
+		sprintf_s(debug_text, 39, "%s", "PRESS.[4].PROPAGATE.A* WITH DIAGONALS");
+		App->tex->BlitFont(336, 60, debug_font, debug_text);
+
+		//Change distance algorithm
+		sprintf_s(debug_text, 37, "%s", "PRESS.[5].CHANGE.DISTANCE.ALGORITHM");
+		App->tex->BlitFont(328, 90, debug_font, debug_text);
+		//Curret distance algorithm
+		sprintf_s(debug_text, 29, "%s", "CURRENT.DISTANCE.ALGORITHM: ");
+		App->tex->BlitFont(245, 105, debug_font, debug_text);
+	}
 	int x, y;
 	App->input->GetMousePosition(x, y);
 	iPoint map_coordinates = App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y);

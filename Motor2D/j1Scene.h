@@ -32,8 +32,9 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-private:
+public:
 
+	//Timer data
 	j1Timer time_data;
 
 	int initial_time = 0;
@@ -43,6 +44,18 @@ private:
 	int decimes = 0;
 	int minutes = 0;
 
+	//Textures data
+	SDL_Texture* tex_goal;
+	SDL_Texture* tex_path;
+
+	//Fx data 
+	uint goal_find;
+
+	//Fonts data
+	int debug_font;
+	char debug_text[40];
+
+	bool debug_mode;
 };
 
 #endif // __j1SCENE_H__

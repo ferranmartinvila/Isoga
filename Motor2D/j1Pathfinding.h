@@ -98,11 +98,6 @@ private:
 	// we store the created path here
 	p2DynArray<iPoint> last_path;
 
-	//Textures
-	SDL_Texture* tex_goal;
-	SDL_Texture* tex_path;
-	//Fx
-	uint goal_find;
 };
 
 

@@ -25,16 +25,12 @@ bool j1Pathfinding::Awake(pugi::xml_node& config)
 {
 	LOG("Loading Pathfinding data");
 	bool ret = true;
-	goal.x = goal.y = -1;
+	goal.x = goal.y = 0;
 	return ret;
 }
 
 bool j1Pathfinding::Start() {
 	bool ret = true;
-
-	tex_goal = App->tex->Load("textures/goal_texture.png");
-	tex_path = App->tex->Load("textures/path_texture.png");
-	goal_find = App->audio->LoadFx("audio/fx/goal_find.wav");
 
 	return ret;
 }
@@ -191,15 +187,19 @@ uchar j1Pathfinding::GetTileWalkability(const iPoint& pos) const
 
 void j1Pathfinding::ResetPath()
 {
-	open.Clear();
-	close.clear();
+	if(last_path.Count()>0)last_path.Clear();
+	else {
+		open.Clear();
+		close.clear();
+		goal.SetToZero();
+	}
 }
 
 void j1Pathfinding::PropagateBFS()
 {
 
 	if (close.find(goal) != -1) {
-		App->audio->PlayFx(goal_find);
+		App->audio->PlayFx(App->scene->goal_find);
 		return;
 	}
 
@@ -234,7 +234,7 @@ void j1Pathfinding::PropagateBFS()
 void j1Pathfinding::PropagateDijkstra() {
 
 	if (close.find(goal) != -1) {
-		App->audio->PlayFx(goal_find); 
+		App->audio->PlayFx(App->scene->goal_find); 
 		return;
 	}
 
@@ -304,10 +304,12 @@ void j1Pathfinding::Draw()
 	}
 
 	//Draw goal
+	if (goal.IsZero() == false) {
+		
+		iPoint pos = App->map->MapToWorld(goal.x, goal.y);
+		App->render->Blit(App->scene->tex_goal, pos.x, pos.y);
 
-	iPoint pos = App->map->MapToWorld(goal.x, goal.y);
-
-	App->render->Blit(tex_goal, pos.x, pos.y);
+	}
 
 	//Draw Path
 	const p2DynArray<iPoint>* path = App->pathfinding->GetLastPath();
@@ -315,7 +317,7 @@ void j1Pathfinding::Draw()
 	for (uint i = 0; i < path->Count(); ++i)
 	{
 		iPoint pos = App->map->MapToWorld(path->At(i)->x, path->At(i)->y);
-		App->render->Blit(tex_path, pos.x, pos.y);
+		App->render->Blit(App->scene->tex_path, pos.x, pos.y);
 	}
 }
 
