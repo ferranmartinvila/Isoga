@@ -45,7 +45,7 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 
 	// render last to swap buffer
 	AddModule(render);
-	LOG("Contructor Time(ms): %.2f", timer.ReadMs());
+	LOG("App Contructor Time(ms): %.2f", timer.ReadMs());
 }
 
 // Destructor
@@ -72,6 +72,8 @@ void j1App::AddModule(j1Module* module)
 // Called before render is available
 bool j1App::Awake()
 {
+	timer.Start();
+
 	pugi::xml_document	config_file;
 	pugi::xml_node		config;
 	pugi::xml_node		app_config;
@@ -101,12 +103,16 @@ bool j1App::Awake()
 		}
 	}
 
+	LOG("App Awake Time(ms): %.2f", timer.ReadMs());
+	
 	return ret;
 }
 
 // Called before the first frame
 bool j1App::Start()
 {
+	timer.Start();
+
 	bool ret = true;
 	p2List_item<j1Module*>* item;
 	item = modules.start;
@@ -116,6 +122,8 @@ bool j1App::Start()
 		ret = item->data->Start();
 		item = item->next;
 	}
+
+	LOG("App Start Time(ms): %.2f", timer.ReadMs());
 
 	return ret;
 }
@@ -243,6 +251,8 @@ bool j1App::PostUpdate()
 // Called before quitting
 bool j1App::CleanUp()
 {
+	timer.Start();
+
 	bool ret = true;
 	p2List_item<j1Module*>* item;
 	item = modules.end;
@@ -252,6 +262,8 @@ bool j1App::CleanUp()
 		ret = item->data->CleanUp();
 		item = item->prev;
 	}
+
+	LOG("App CleanUp Time(ms): %.2f", timer.ReadMs());
 
 	return ret;
 }

@@ -104,6 +104,7 @@ private:
 	bool				want_to_load;
 	p2SString			load_game;
 	mutable p2SString	save_game;
+public:
 
 	j1PerfTimer timer;
 };

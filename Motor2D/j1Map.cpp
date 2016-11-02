@@ -86,7 +86,7 @@ void j1Map::Draw()
 	{
 		MapLayer* layer = item->data;
 
-		if(layer->properties.Get("Draw") == false)
+		if(layer->properties.Get("Draw") == false && (layer->properties.Get("Navigation") == true && collide_layer == false) )
 			continue;
 
 		for(int y = 0; y < data.height; ++y)
@@ -188,6 +188,12 @@ iPoint j1Map::WorldToMap(int x, int y) const
 	}
 
 	return ret;
+}
+
+void j1Map::CollideLayer() {
+
+	collide_layer = !collide_layer;
+
 }
 
 SDL_Rect TileSet::GetTileRect(int id) const

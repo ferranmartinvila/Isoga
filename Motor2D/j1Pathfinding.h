@@ -7,6 +7,7 @@
 #include "p2Point.h"
 #include "j1Module.h"
 #include "p2DynArray.h"
+#include "j1PerfTimer.h"
 
 #define DEFAULT_PATH_LENGTH 50
 #define INVALID_WALK_CODE 255

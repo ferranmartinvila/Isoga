@@ -4,6 +4,7 @@
 #include "SDL/include/SDL.h"
 #include "p2Point.h"
 #include "j1Module.h"
+#include "j1Timer.h"
 
 class j1Render : public j1Module
 {
@@ -49,6 +50,18 @@ public:
 	SDL_Rect		camera;
 	SDL_Rect		viewport;
 	SDL_Color		background;
+
+private:
+
+	j1Timer timer;
+
+	uint FPS;
+	uint current_frames;
+	uint All_Frames = 0;
+public:
+
+	uint GetFPS()const;
+	uint GetAllFrames()const;
 };
 
 #endif // __j1RENDER_H__

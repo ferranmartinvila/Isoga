@@ -51,9 +51,17 @@ bool j1Render::Awake(pugi::xml_node& config)
 	return ret;
 }
 
+uint j1Render::GetFPS()const {
+	return FPS;
+}
+uint j1Render::GetAllFrames()const {
+	return All_Frames;
+}
+
 // Called before the first frame
 bool j1Render::Start()
 {
+	timer.Start();
 	LOG("render start");
 	// back background
 	SDL_RenderGetViewport(renderer, &viewport);
@@ -69,6 +77,11 @@ bool j1Render::PreUpdate()
 
 bool j1Render::Update(float dt)
 {
+	if (timer.ReadSec() == 1) {
+		FPS = current_frames;
+		current_frames = 0;
+		timer.Start();
+	}
 	return true;
 }
 
@@ -76,6 +89,8 @@ bool j1Render::PostUpdate()
 {
 	SDL_SetRenderDrawColor(renderer, background.r, background.g, background.g, background.a);
 	SDL_RenderPresent(renderer);
+	All_Frames++;
+	current_frames++;
 	return true;
 }
 

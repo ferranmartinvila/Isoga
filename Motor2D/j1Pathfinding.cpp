@@ -75,6 +75,7 @@ void j1Pathfinding::SetWalkabilityMap(uint width, uint height, uchar* data)
 
 int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal) {
 	
+
 	// TODO 1: if origin or destination are not walkable, return -1
 	if (IsWalkable(origin) == false || IsWalkable(goal) == false)return -1;
 	
