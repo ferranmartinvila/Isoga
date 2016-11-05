@@ -27,4 +27,8 @@
     <folder>maps/</folder>
   </map>
 
+<player>
+	<coordinates x_tile = "20" y_tile = "4" />
+</player>
+
 </config>

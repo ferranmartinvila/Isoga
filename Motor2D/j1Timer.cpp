@@ -19,7 +19,6 @@ void j1Timer::Start()
 
 }
 
-// ---------------------------------------------
 uint32 j1Timer::Read() const
 {
 	return uint32(SDL_GetTicks() - started_at);

@@ -46,6 +46,9 @@
     <ClCompile Include="j1PerfTimer.cpp">
       <Filter>Tools\Timers</Filter>
     </ClCompile>
+    <ClCompile Include="j1ModulePlayer.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="j1Window.h">
@@ -113,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="j1PerfTimer.h">
       <Filter>Tools\Timers</Filter>
+    </ClInclude>
+    <ClInclude Include="j1ModulePlayer.h">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@
 #include "j1FileSystem.h"
 #include "j1Map.h"
 #include "j1Pathfinding.h"
+#include "j1ModulePlayer.h"
 #include "j1App.h"
 
 // Constructor
@@ -33,6 +34,7 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 	fs = new j1FileSystem();
 	map = new j1Map();
 	pathfinding = new j1Pathfinding();
+	player = new j1ModulePlayer();
 
 	// Ordered for awake / Start / Update
 	// Reverse order of CleanUp
@@ -44,7 +46,9 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 	AddModule(map);
 	AddModule(pathfinding);
 	AddModule(scene);
+	AddModule(player);
 	AddModule(render);
+
 
 	//LOG needed time to construct the app
 	LOG("App Contructor Time(ms): %.2f", process_timer.ReadMs());
@@ -290,7 +294,7 @@ void j1App::FinishUpdate()
 	if (delay > 0) SDL_Delay(delay);
 	
 	//LOG the delay error
-	LOG("Real Delay: %f", delay_error.ReadMs());
+	//LOG("Real Delay: %f", delay_error.ReadMs());
 }
 
 // Called before quitting
@@ -455,6 +459,11 @@ const char* j1App::GetOrganization() const
 uint j1App::GetTime() const
 {
 	return timer.ReadSec();
+}
+
+uint64 j1App::GetMSTime() const
+{
+	return timer.Read();
 }
 
 uint j1App::GetFPS() const

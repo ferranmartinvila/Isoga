@@ -9,6 +9,7 @@
 #include "j1Map.h"
 #include "j1Pathfinding.h"
 #include "j1Scene.h"
+#include "j1ModulePlayer.h"
 
 j1Scene::j1Scene() : j1Module()
 {

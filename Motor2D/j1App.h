@@ -19,6 +19,7 @@ class j1FileSystem;
 class j1Scene;
 class j1Map;
 class j1Pathfinding;
+class j1ModulePlayer;
 
 class j1App
 {
@@ -91,6 +92,7 @@ public:
 	j1FileSystem*		fs;
 	j1Map*				map;
 	j1Pathfinding*		pathfinding;
+	j1ModulePlayer*		player;
 
 private:
 
@@ -137,9 +139,15 @@ private:
 
 public:
 
+	//Get current app time in seconds
 	uint	GetTime()const;
+	//Get current app time in ms
+	uint64	GetMSTime()const;
+	//Get current fps
 	uint32	GetFPS() const;
+	//Get fps average
 	float	GetAvgFPS() const;
+	//Get all the frames rendered since app init
 	uint	GetFramesCount() const;
 
 };
