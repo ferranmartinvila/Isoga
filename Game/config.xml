@@ -2,12 +2,13 @@
 
 <config>
   <app>
-    <title>Isoga</title>
-    <organization>UPC</organization>
+	<framerate_cap value = "120"/>
+	<title>Isoga</title>
+ 	<organization>UPC</organization>
   </app>
 	
   <renderer>
-    <vsync value="true"/>
+    <vsync value="false"/>
   </renderer>
 
   <window>

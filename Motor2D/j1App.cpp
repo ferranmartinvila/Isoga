@@ -18,8 +18,10 @@
 // Constructor
 j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 {
-	timer.Start();
-	frames = 0;
+	//Start the constructor process timer
+	process_timer.Start();
+	
+	
 	want_to_save = want_to_load = false;
 
 	input = new j1Input();
@@ -42,10 +44,10 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 	AddModule(map);
 	AddModule(pathfinding);
 	AddModule(scene);
-
-	// render last to swap buffer
 	AddModule(render);
-	LOG("App Contructor Time(ms): %.2f", timer.ReadMs());
+
+	//LOG needed time to construct the app
+	LOG("App Contructor Time(ms): %.2f", process_timer.ReadMs());
 }
 
 // Destructor
@@ -72,7 +74,8 @@ void j1App::AddModule(j1Module* module)
 // Called before render is available
 bool j1App::Awake()
 {
-	timer.Start();
+	//Start the awake process timer
+	process_timer.Start();
 
 	pugi::xml_document	config_file;
 	pugi::xml_node		config;
@@ -84,11 +87,16 @@ bool j1App::Awake()
 
 	if(config.empty() == false)
 	{
-		// self-config
+		// Load config
 		ret = true;
 		app_config = config.child("app");
+		
+		//Save folder data
 		title.create(app_config.child("title").child_value());
 		organization.create(app_config.child("organization").child_value());
+		
+		//Framerate data
+		framerate_cap = app_config.child("framerate_cap").attribute("value").as_uint();
 	}
 
 	if(ret == true)
@@ -103,7 +111,8 @@ bool j1App::Awake()
 		}
 	}
 
-	LOG("App Awake Time(ms): %.2f", timer.ReadMs());
+	//LOG the needed time to awake the app
+	LOG("App Awake Time(ms): %.2f", process_timer.ReadMs());
 	
 	return ret;
 }
@@ -111,6 +120,9 @@ bool j1App::Awake()
 // Called before the first frame
 bool j1App::Start()
 {
+	//Start the start process timer
+	process_timer.Start();
+	//Start the timer
 	timer.Start();
 
 	bool ret = true;
@@ -123,7 +135,8 @@ bool j1App::Start()
 		item = item->next;
 	}
 
-	LOG("App Start Time(ms): %.2f", timer.ReadMs());
+	//LOG the needed time to start the app
+	LOG("App Start Time(ms): %.2f", process_timer.ReadMs());
 
 	return ret;
 }
@@ -171,17 +184,28 @@ pugi::xml_node j1App::LoadConfig(pugi::xml_document& config_file) const
 // ---------------------------------------------
 void j1App::PrepareUpdate()
 {
+	//Differential time since the last frame
+	dt = last_frame_timer.ReadSec();
+	//Calculate the time of the last frame
+	last_frame_timer.Start();
+
+	//Framerate count
+	frames_count++;
+	current_frames++;
+	avg_fps = float(frames_count / timer.ReadSec());
+	
+	//Update fps
+	if (fps_timer.Read() > 1000) {
+
+		current_fps = current_frames;
+		current_frames = 0;
+		fps_timer.Start();
+
+	}
+
 }
 
 // ---------------------------------------------
-void j1App::FinishUpdate()
-{
-	if(want_to_save == true)
-		SavegameNow();
-
-	if(want_to_load == true)
-		LoadGameNow();
-}
 
 // Call modules before each loop iteration
 bool j1App::PreUpdate()
@@ -222,6 +246,7 @@ bool j1App::DoUpdate()
 		}
 
 		ret = item->data->Update(dt);
+
 	}
 
 	return ret;
@@ -248,10 +273,30 @@ bool j1App::PostUpdate()
 	return ret;
 }
 
+void j1App::FinishUpdate()
+{
+	if (want_to_save == true)
+		SavegameNow();
+
+	if (want_to_load == true)
+		LoadGameNow();
+
+	//Last frame time in ms
+	last_frame_time = last_frame_timer.Read();
+
+	//Delay if framerate cap is actived
+	float delay = (1000 / framerate_cap) - last_frame_time;
+	delay_error.Start();
+	if (delay > 0) SDL_Delay(delay);
+	
+	//LOG the delay error
+	LOG("Real Delay: %f", delay_error.ReadMs());
+}
+
 // Called before quitting
 bool j1App::CleanUp()
 {
-	timer.Start();
+	process_timer.Start();
 
 	bool ret = true;
 	p2List_item<j1Module*>* item;
@@ -263,37 +308,14 @@ bool j1App::CleanUp()
 		item = item->prev;
 	}
 
-	LOG("App CleanUp Time(ms): %.2f", timer.ReadMs());
+
+	//LOG the needed time to CleanUp the app
+	LOG("App CleanUp Time(ms): %.2f", process_timer.ReadMs());
 
 	return ret;
 }
 
 // ---------------------------------------
-int j1App::GetArgc() const
-{
-	return argc;
-}
-
-// ---------------------------------------
-const char* j1App::GetArgv(int index) const
-{
-	if(index < argc)
-		return args[index];
-	else
-		return NULL;
-}
-
-// ---------------------------------------
-const char* j1App::GetTitle() const
-{
-	return title.GetString();
-}
-
-// ---------------------------------------
-const char* j1App::GetOrganization() const
-{
-	return organization.GetString();
-}
 
 // Load / Save
 void j1App::LoadGame(const char* file)
@@ -307,9 +329,8 @@ void j1App::LoadGame(const char* file)
 // ---------------------------------------
 void j1App::SaveGame(const char* file) const
 {
+	
 	// we should be checking if that file actually exist
-	// from the "GetSaveGames" list ... should we overwrite ?
-
 	want_to_save = true;
 	save_game.create(file);
 }
@@ -401,4 +422,52 @@ bool j1App::SavegameNow() const
 	data.reset();
 	want_to_save = false;
 	return ret;
+}
+
+// ---------------------------------------
+
+int j1App::GetArgc() const
+{
+	return argc;
+}
+
+// ---------------------------------------
+const char* j1App::GetArgv(int index) const
+{
+	if (index < argc)
+		return args[index];
+	else
+		return NULL;
+}
+
+// ---------------------------------------
+const char* j1App::GetTitle() const
+{
+	return title.GetString();
+}
+
+// ---------------------------------------
+const char* j1App::GetOrganization() const
+{
+	return organization.GetString();
+}
+
+uint j1App::GetTime() const
+{
+	return timer.ReadSec();
+}
+
+uint j1App::GetFPS() const
+{
+	return current_fps;
+}
+
+float j1App::GetAvgFPS() const
+{
+	return avg_fps;
+}
+
+uint j1App::GetFramesCount() const
+{
+	return frames_count;
 }

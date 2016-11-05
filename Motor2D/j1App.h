@@ -3,8 +3,11 @@
 
 #include "p2List.h"
 #include "j1Module.h"
-#include "PugiXml\src\pugixml.hpp"
 #include "j1PerfTimer.h"
+#include "j1Timer.h"
+
+#include "PugiXml\src\pugixml.hpp"
+
 
 // Modules
 class j1Window;
@@ -92,8 +95,6 @@ public:
 private:
 
 	p2List<j1Module*>	modules;
-	uint				frames;
-	float				dt;
 	int					argc;
 	char**				args;
 
@@ -104,9 +105,43 @@ private:
 	bool				want_to_load;
 	p2SString			load_game;
 	mutable p2SString	save_game;
+
+private:
+
+	//Count the time of the last grame
+	j1Timer		last_frame_timer;
+	uint32		last_frame_time;
+	
+	//Used to log the times of app process
+	j1PerfTimer process_timer;
+	
+	//Count the seconds for the fps
+	j1Timer		fps_timer;
+	uint32		current_frames = 0;
+	uint32		current_fps;
+	float		avg_fps;
+	uint		frames_count = 0;
+
+	//Determinate a framerate
+	uint32		framerate_cap = 0;
+
+
+	//Count the delay error in ms
+	j1PerfTimer delay_error;
+
+	//Differential time since the last frame
+	float				dt;
+
+	//Timer data
+	j1Timer timer;
+
 public:
 
-	j1PerfTimer timer;
+	uint	GetTime()const;
+	uint32	GetFPS() const;
+	float	GetAvgFPS() const;
+	uint	GetFramesCount() const;
+
 };
 
 extern j1App* App; //App external pointer to point all the included modules 

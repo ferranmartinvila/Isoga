@@ -51,17 +51,6 @@ public:
 	SDL_Rect		viewport;
 	SDL_Color		background;
 
-private:
-
-	j1Timer timer;
-
-	uint FPS;
-	uint current_frames;
-	uint All_Frames = 0;
-public:
-
-	uint GetFPS()const;
-	uint GetAllFrames()const;
 };
 
 #endif // __j1RENDER_H__

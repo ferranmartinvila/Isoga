@@ -68,25 +68,6 @@ bool j1Scene::PreUpdate()
 // Called each loop iteration
 bool j1Scene::Update(float dt)
 {
-	//WATCH------------------------------------------------
-	int crone_time = time_data.Read();
-
-	if (crone_time >= (initial_time + ratio))
-	{
-		seconds++;
-		if (seconds > 9)
-		{
-			seconds = 0;
-			++decimes;
-		}
-
-		if (decimes > 5)
-		{
-			decimes = 0;
-			++minutes;
-		}
-		initial_time = crone_time;
-	}
 	
 	//FILE SYSTEM------------------------------------------
 	if(App->input->GetKey(SDL_SCANCODE_L) == KEY_DOWN)
@@ -97,16 +78,16 @@ bool j1Scene::Update(float dt)
 
 	//MAP MOVEMENT-----------------------------------------
 	if(App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
-		App->render->camera.y += 5;
+		App->render->camera.y += SDL_ceil(500 * dt);
 
 	if(App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
-		App->render->camera.y -= 5;
+		App->render->camera.y -= SDL_ceil(500 * dt);
 
 	if(App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
-		App->render->camera.x += 5;
+		App->render->camera.x += SDL_ceil(500 * dt);
 
 	if(App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-		App->render->camera.x -= 5;
+		App->render->camera.x -= SDL_ceil(500 * dt);
 
 	//PATHFINDING------------------------------------------
 	if (App->input->GetMouseButtonDown(1) == KEY_DOWN) {
@@ -166,14 +147,25 @@ bool j1Scene::Update(float dt)
 		sprintf_s(debug_text, 29, "%s", "CURRENT.DISTANCE.ALGORITHM: ");
 		App->tex->BlitFont(245, 105, debug_font, debug_text);
 	}
+	
+
+
+	//Map coordinates
 	int x, y;
 	App->input->GetMousePosition(x, y);
 	iPoint map_coordinates = App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y);
-	p2SString title("MAP DATA[Map: %dx%d Tiles: %dx%d Tilesets: %d Tile: %d,%d]     TIME DATA[Time: %i:%i%i  FPS: %i Frames: %i]",
+
+	p2SString title("MAP DATA[Map: %dx%d Tiles: %dx%d Tilesets: %d Tile: %d,%d]     TIME DATA[Time: %u  AvgFPS: %.2f  FPS: %i Frames: %i]",
+		//Map Data
 		App->map->data.width, App->map->data.height,
 		App->map->data.tile_width, App->map->data.tile_height,
 		App->map->data.tilesets.count(),
-		map_coordinates.x, map_coordinates.y, minutes, decimes, seconds, App->render->GetFPS(),App->render->GetAllFrames());
+		map_coordinates.x, map_coordinates.y,
+		//Time Data
+		App->GetTime(),
+		App->GetAvgFPS(),
+		App->GetFPS(),
+		App->GetFramesCount());
 
 	App->win->SetTitle(title.GetString());
 	return true;

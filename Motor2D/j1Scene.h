@@ -2,7 +2,6 @@
 #define __j1SCENE_H__
 
 #include "j1Module.h"
-#include "j1Timer.h"
 struct SDL_Texture;
 
 class j1Scene : public j1Module
@@ -33,16 +32,6 @@ public:
 	bool CleanUp();
 
 public:
-
-	//Timer data
-	j1Timer time_data;
-
-	int initial_time = 0;
-	int crone_time = 0;
-	int ratio = 1000;
-	int seconds = 0;
-	int decimes = 0;
-	int minutes = 0;
 
 	//Textures data
 	SDL_Texture* tex_goal;

@@ -57,7 +57,6 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 				{
 
 					map[i] = (tile_id - tileset->firstgid) > 0 ? 0 : 1;
-					LOG("Map[%i] %i", i, map[i]);
 
 				}
 			}
