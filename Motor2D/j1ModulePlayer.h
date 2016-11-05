@@ -54,7 +54,7 @@ public:
 private:
 
 	//Time between updates
-	uint32 update_rate = 100;
+	uint32 update_rate;
 	//Last update time
 	uint32 last_update = 0;
 

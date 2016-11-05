@@ -181,7 +181,7 @@ uchar j1Pathfinding::GetTileWalkability(const iPoint& pos) const
 {
 	if (CheckBoundaries(pos))
 		return walkability_map[(pos.y*width) + pos.x];
-
+	
 	return INVALID_WALK_CODE;
 }
 
@@ -258,7 +258,8 @@ void j1Pathfinding::PropagateDijkstra() {
 			if (close.find(neighbor[k]) == -1 && IsWalkable(neighbor[k])) {
 
 					close.add(neighbor[k]);
-					open.Push(neighbor[k], GetTileWalkability(neighbor[k]));
+					open.Push(neighbor[k],	App->map->MovementCost(neighbor[k].x,neighbor[k].y));
+					LOG("tile walk: %i", GetTileWalkability(neighbor[k]));
 
 			}
 

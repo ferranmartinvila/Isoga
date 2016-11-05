@@ -71,10 +71,10 @@ bool j1Scene::Update(float dt)
 {
 	
 	//FILE SYSTEM------------------------------------------
-	if(App->input->GetKey(SDL_SCANCODE_L) == KEY_DOWN)
+	if(App->input->GetKey(SDL_SCANCODE_O) == KEY_DOWN)
 		App->LoadGame("save_game.xml");
 
-	if(App->input->GetKey(SDL_SCANCODE_S) == KEY_DOWN)
+	if(App->input->GetKey(SDL_SCANCODE_P) == KEY_DOWN)
 		App->SaveGame("save_game.xml");
 
 	//MAP MOVEMENT-----------------------------------------

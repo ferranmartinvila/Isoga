@@ -90,7 +90,9 @@ private:
 
 	//All map walkability data
 	uchar* walkability_map;
-	
+	//All map walk cost data
+	uchar* walk_cost_map;
+
 	// size of the map
 	uint width;
 	uint height;

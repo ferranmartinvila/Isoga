@@ -56,7 +56,7 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 				if (tileset != NULL)
 				{
 
-					map[i] = (tile_id - tileset->firstgid) > 0 ? 0 : 1;
+					map[i] = (tile_id - tileset->firstgid) > 2 ? 0 : 1;
 
 				}
 			}
@@ -72,6 +72,23 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 
 	return ret;
 	
+}
+
+int j1Map::MovementCost(int x, int y) const
+{
+	int ret = -1;
+
+	if (x >= 0 && x < data.width && y >= 0 && y < data.height)
+	{
+		int id = data.layers.start->next->data->Get(x, y);
+
+		if (id == 0)
+			ret = 3;
+		else
+			ret = 0;
+	}
+
+	return ret;
 }
 
 void j1Map::Draw()
