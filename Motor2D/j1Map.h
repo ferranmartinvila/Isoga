@@ -5,6 +5,7 @@
 #include "p2List.h"
 #include "p2Queue.h"
 #include "p2Point.h"
+#include "p2DynArray.h"
 #include "j1Module.h"
 
 // ----------------------------------------------------
@@ -163,6 +164,14 @@ private:
 	bool				map_loaded;
 
 	bool collide_layer = false;
+
+	p2List<iPoint> portals;
+
+public:
+
+	bool Is_Portal(int& x, int& y)const;
+	iPoint GetBestPortal(iPoint& goal )const;
+
 };
 
 #endif // __j1MAP_H__

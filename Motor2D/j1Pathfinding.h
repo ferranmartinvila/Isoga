@@ -74,6 +74,8 @@ public:
 	iPoint start;
 	iPoint goal;
 
+	p2DynArray<iPoint> portals;
+
 private:
 
 	bool correct_path = false;
@@ -91,6 +93,8 @@ private:
 	// size of the map
 	uint width;
 	uint height;
+
+public:
 
 	// we store the created path here
 	p2DynArray<iPoint> last_path;

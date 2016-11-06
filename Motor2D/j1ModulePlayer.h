@@ -68,5 +68,7 @@ public:
 	iPoint			player_coordinates;
 
 	DIRECTION		player_direction;
+
+	uint			path_cell;
 };
 #endif

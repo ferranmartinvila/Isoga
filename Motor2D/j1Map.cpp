@@ -24,6 +24,10 @@ bool j1Map::Awake(pugi::xml_node& config)
 	bool ret = true;
 
 	folder.create(config.child("folder").child_value());
+	
+	//Temporal portals locator
+	portals.add({ 17,3 });
+	portals.add({ 10,22 });
 
 	return ret;
 }
@@ -94,6 +98,7 @@ bool j1Map::CreateWalkCostMap(int & width, int & height, uchar ** buffer) const
 		{
 			for (int x = 0; x < data.width; ++x)
 			{
+
 				int i = (y*layer->width) + x;
 
 				int tile_id = layer->Get(x, y);
@@ -114,6 +119,9 @@ bool j1Map::CreateWalkCostMap(int & width, int & height, uchar ** buffer) const
 						break;
 					case 3:
 						tile_cost = 12;
+						break;
+					case 4:
+						tile_cost = 1;
 						break;
 					}
 
@@ -277,6 +285,30 @@ void j1Map::CollideLayer() {
 
 	collide_layer = !collide_layer;
 
+}
+
+bool j1Map::Is_Portal(int & x, int & y) const
+{
+	iPoint point;
+	point.create(x, y);
+	for (uint k = 0; k < portals.count(); k++) {
+		if (portals.At(k)->data.x == x && portals.At(k)->data.y == y)return true;
+	}
+	return false;
+}
+
+iPoint j1Map::GetBestPortal(iPoint& goal) const
+{
+	iPoint current;
+	iPoint perf_point;
+	uint best_distance = App->map->data.width;
+
+	for (uint k = 0; k < portals.count(); k++) {
+		uint distance = 0;
+		current = portals.At(k)->data;
+		if (current.DistanceManhattan(goal) < best_distance)perf_point = current;
+	}
+	return current;
 }
 
 SDL_Rect TileSet::GetTileRect(int id) const

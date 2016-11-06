@@ -95,12 +95,10 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 	//Origin node
 	PathNode origin_node(0,origin.DistanceManhattan(goal),origin,nullptr);
-	//Working node
-	PathNode in_work;
 
 	// Add the origin tile to open
 	open_list.list.add(origin_node);
-	
+
 	// Iterate while we have tile in the open list
 	while (open_list.list.count() > 0) {
 
@@ -118,8 +116,9 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 			for (p2List_item<PathNode>* node = close_list.list.end; node->data.parent != nullptr; node = close_list.Find(node->data.parent->pos)) {
 
 				last_path.PushBack(node->data.pos);
-
+				
 			}
+			last_path.PushBack(origin_node.pos);
 			// Use the Pathnode::parent and Flip() the path when you are finish
 			last_path.Flip();
 
@@ -306,9 +305,9 @@ void j1Pathfinding::Draw()
 	for (uint i = 0; i < open.Count(); ++i)
 	{
 		point = *(open.Peek(i));
-		TileSet* tileset = App->map->GetTilesetFromTileId(25);
+		TileSet* tileset = App->map->GetTilesetFromTileId(26);
 
-		SDL_Rect r = tileset->GetTileRect(25);
+		SDL_Rect r = tileset->GetTileRect(26);
 		iPoint pos = App->map->MapToWorld(point.x, point.y);
 
 		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
@@ -410,46 +409,62 @@ uint PathNode::FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) con
 
 	// north
 	cell.create(pos.x, pos.y + 1);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	}
 
 	// south
 	cell.create(pos.x, pos.y - 1);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	}
 
 	// east
 	cell.create(pos.x + 1, pos.y);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	}
 
 	// west
 	cell.create(pos.x - 1, pos.y);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	}
 
 	//diagonal able
 	if(diagonals == false)return list_to_fill.list.count(); 
 
 	//north-east
 	cell.create(pos.x + 1, pos.y + 1);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
-	
+	}
+
 	//north-west
 	cell.create(pos.x - 1, pos.y + 1);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
-	
+	}
+
 	//south-east
 	cell.create(pos.x + 1, pos.y - 1);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
-	
+	}
+
 	//south-west
 	cell.create(pos.x - 1, pos.y - 1);
-	if (App->pathfinding->IsWalkable(cell))
+	if (App->pathfinding->IsWalkable(cell)) {
+		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
+	}
 
 	return list_to_fill.list.count();
 }

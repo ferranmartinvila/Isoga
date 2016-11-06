@@ -5,6 +5,7 @@
 #include "j1Map.h"
 #include "j1Input.h"
 #include "p2Log.h"
+#include "j1Pathfinding.h"
 
 j1ModulePlayer::j1ModulePlayer()
 {
@@ -32,6 +33,8 @@ bool j1ModulePlayer::Start()
 	
 	update_rate = 650;
 	
+	path_cell = 0;
+
 	if (player_texture != NULL)return true;
 	
 	LOG("Cannot load Player Data!");
@@ -66,6 +69,16 @@ bool j1ModulePlayer::Update(float dt)
 		if (player_direction == SOUTH) { player_coordinates.x++; player_coordinates.y++; player_direction = NO_DIR; }
 		if (player_direction == SOUTH_WEST) { player_coordinates.y++; player_direction = NO_DIR; }
 
+		if (App->pathfinding->last_path.Count() > 0) {
+			
+			if (player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
+				
+				if (path_cell < App->pathfinding->last_path.Count() - 1)path_cell++;
+				else path_cell = 0;
+				player_coordinates = *App->pathfinding->last_path.At(path_cell);
+
+			}
+		}
 	}
 
 	App->player->Draw();
