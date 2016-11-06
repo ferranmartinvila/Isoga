@@ -69,6 +69,16 @@ void j1Pathfinding::SetWalkabilityMap(uint width, uint height, uchar* data)
 	memcpy(walkability_map, data, width*height);
 }
 
+void j1Pathfinding::SetWalkCostMap(uint widht, uint height, uchar * data)
+{
+	this->width = width;
+	this->height = height;
+
+	RELEASE_ARRAY(walk_cost_map);
+	walk_cost_map = new uchar[width*height];
+	memcpy(walk_cost_map, data, width*height);
+}
+
 int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool diagonals, bool walk_cost) {
 	
 
@@ -180,7 +190,7 @@ bool j1Pathfinding::IsWalkable(const iPoint& pos) const
 uchar j1Pathfinding::GetTileWalkability(const iPoint& pos) const
 {
 	if (CheckBoundaries(pos))
-		return walkability_map[(pos.y*width) + pos.x];
+		return walk_cost_map[(pos.y*width) + pos.x];
 	
 	return INVALID_WALK_CODE;
 }
@@ -258,7 +268,8 @@ void j1Pathfinding::PropagateDijkstra() {
 			if (close.find(neighbor[k]) == -1 && IsWalkable(neighbor[k])) {
 
 					close.add(neighbor[k]);
-					open.Push(neighbor[k],	App->map->MovementCost(neighbor[k].x,neighbor[k].y));
+					open.Push(neighbor[k], App->pathfinding->GetTileWalkability(neighbor[k]));
+					
 
 			}
 
@@ -366,11 +377,10 @@ p2List_item<PathNode>* PathList::GetNodeLowestScore(bool walk_cost) const
 	while (item)
 	{
 		//If walk cost is checked it calculates it
-		if (walk_cost)item_walk_cost = App->map->MovementCost(item->data.pos.x, item->data.pos.y);
-		
-		if ((item->data.Score() + item_walk_cost * WALK_COST_IMP) < min)
+		if (walk_cost)item_walk_cost = App->pathfinding->GetTileWalkability(item->data.pos);
+		if ((item->data.Score() + (item_walk_cost * WALK_COST_IMP)) < min)
 		{
-			min = item->data.Score() + item_walk_cost * WALK_COST_IMP;
+			min = item->data.Score() + (item_walk_cost * WALK_COST_IMP);
 			ret = item;
 		}
 		item = item->prev;

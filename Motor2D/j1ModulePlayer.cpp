@@ -113,8 +113,6 @@ bool j1ModulePlayer::UpdateTick()
 		
 		//Update last update time
 		last_update = current_time;
-		//LOG it
-		LOG("Player Update Time: %u\n", current_time);
 
 		return true;
 

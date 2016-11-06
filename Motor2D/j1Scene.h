@@ -42,7 +42,7 @@ public:
 
 	//Fonts data
 	int debug_font;
-	char debug_text[40];
+	char debug_text[60];
 
 	bool debug_mode;
 };

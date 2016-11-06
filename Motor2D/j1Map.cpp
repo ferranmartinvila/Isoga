@@ -55,7 +55,7 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 
 				if (tileset != NULL)
 				{
-
+					
 					map[i] = (tile_id - tileset->firstgid) > 2 ? 0 : 1;
 
 				}
@@ -72,6 +72,65 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 
 	return ret;
 	
+}
+
+bool j1Map::CreateWalkCostMap(int & width, int & height, uchar ** buffer) const
+{
+	bool ret = false;
+	p2List_item<MapLayer*>* item;
+	item = data.layers.start;
+
+	for (item = data.layers.start; item != NULL; item = item->next)
+	{
+		MapLayer* layer = item->data;
+
+		if (layer->properties.Get("Navigation") == false)
+			continue;
+
+		uchar* map = new uchar[layer->width*layer->height];
+		memset(map, 1, layer->width*layer->height);
+
+		for (int y = 0; y < data.height; ++y)
+		{
+			for (int x = 0; x < data.width; ++x)
+			{
+				int i = (y*layer->width) + x;
+
+				int tile_id = layer->Get(x, y);
+				TileSet* tileset = (tile_id > 0) ? GetTilesetFromTileId(tile_id) : NULL;
+
+				if (tileset != NULL)
+				{
+					uint tile_cost = 0;
+					switch (tile_id - tileset->firstgid) {
+					case 0:
+						tile_cost = 2;
+						break;
+					case 1:
+						tile_cost = 8;
+						break;
+					case 2:
+						tile_cost = 4;
+						break;
+					case 3:
+						tile_cost = 12;
+						break;
+					}
+
+					map[i] = tile_cost;
+				}
+			}
+		}
+
+		*buffer = map;
+		width = data.width;
+		height = data.height;
+		ret = true;
+
+		break;
+	}
+
+	return ret;
 }
 
 int j1Map::MovementCost(int x, int y) const

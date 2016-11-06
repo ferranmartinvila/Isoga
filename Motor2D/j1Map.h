@@ -86,6 +86,17 @@ enum MapTypes
 	MAPTYPE_ISOMETRIC,
 	MAPTYPE_STAGGERED
 };
+
+enum TERRAIN {
+
+	GRASS = 27,
+	WATER,
+	MUD,
+	DEEP_WATER,
+	PORTAL
+
+};
+
 // ----------------------------------------------------
 struct MapData
 {
@@ -134,6 +145,9 @@ public:
 	MapData data;
 
 	bool CreateWalkabilityMap(int& width, int & height, uchar** buffer)const;
+	
+	bool CreateWalkCostMap(int& width, int& height, uchar** buffer)const;
+	
 	int MovementCost(int x, int y) const;
 
 	TileSet* GetTilesetFromTileId(int id) const;

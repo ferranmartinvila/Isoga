@@ -11,16 +11,7 @@
 
 #define DEFAULT_PATH_LENGTH 50
 #define INVALID_WALK_CODE 255
-#define WALK_COST_IMP 4
-
-enum TERRAIN {
-
-	GRASS = 27,
-	WATER,
-	MUD,
-	DEEP_WATER
-
-};
+#define WALK_COST_IMP 5
 
 // ----------------------------------------------------
 class j1Pathfinding : public j1Module
@@ -52,6 +43,9 @@ public:
 	//Set walkability map
 	void SetWalkabilityMap(uint width, uint height, uchar* data);
 
+	//Set walk cost map
+	void SetWalkCostMap(uint widht, uint height, uchar* data);
+
 	//create a path from a to b
 	int CreatePath(const iPoint& origin, const iPoint& destination, bool diagonals, bool walk_cost = false);
 
@@ -60,7 +54,7 @@ public:
 	//Return true if pos is inside the map boundaries
 	bool CheckBoundaries(const iPoint& pos) const;
 
-	//Returns true is the tile is walkable
+	//Returns true if the tile is walkable
 	bool IsWalkable(const iPoint& pos) const;
 
 	//Return the walkability value of a tile

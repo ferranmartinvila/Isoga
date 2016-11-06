@@ -43,6 +43,11 @@ bool j1Scene::Start()
 
 		RELEASE_ARRAY(data);
 
+		if (App->map->CreateWalkCostMap(w, h, &data))
+			App->pathfinding->SetWalkCostMap(w, h, data);
+
+		RELEASE_ARRAY(data);
+
 	}
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
@@ -132,24 +137,22 @@ bool j1Scene::Update(float dt)
 	//FONTS------------------------------------------------
 	if (debug_mode) {
 		//Propagate BFS
-		sprintf_s(debug_text, 25, "%s", "PRESS.[1].PROPAGATE.BFS");
+		sprintf_s(debug_text, 24, "%s", "PRESS.[1].PROPAGATE.BFS");
 		App->tex->BlitFont(220, 15, debug_font, debug_text);
 		//Propagate Dijkstra
-		sprintf_s(debug_text, 30, "%s", "PRESS.[2].PROPAGATE.DIJKSTRA");
+		sprintf_s(debug_text, 29, "%s", "PRESS.[2].PROPAGATE.DIJKSTRA");
 		App->tex->BlitFont(264, 30, debug_font, debug_text);
 		//A* without diagonals
-		sprintf_s(debug_text, 24, "%s", "PRESS.[3].PROPAGATE.A*");
-		App->tex->BlitFont(219, 45, debug_font, debug_text);
+		sprintf_s(debug_text, 28, "%s", "PRESS.[3].PROPAGATE.A*.PATH");
+		App->tex->BlitFont(264, 45, debug_font, debug_text);
 		//A* with diagonals
-		sprintf_s(debug_text, 39, "%s", "PRESS.[4].PROPAGATE.A* WITH DIAGONALS");
-		App->tex->BlitFont(336, 60, debug_font, debug_text);
+		sprintf_s(debug_text, 43, "%s", "PRESS.[4].PROPAGATE.A*.PATH.WITH.DIAGONALS");
+		App->tex->BlitFont(398, 60, debug_font, debug_text);
 
 		//Change distance algorithm
-		sprintf_s(debug_text, 37, "%s", "PRESS.[5].CHANGE.DISTANCE.ALGORITHM");
-		App->tex->BlitFont(328, 90, debug_font, debug_text);
-		//Curret distance algorithm
-		sprintf_s(debug_text, 29, "%s", "CURRENT.DISTANCE.ALGORITHM: ");
-		App->tex->BlitFont(245, 105, debug_font, debug_text);
+		sprintf_s(debug_text, 53, "%s", "PRESS.[5].PROPAGATE.A*.WALK.COST.PATH.WITH.DIAGONALS");
+		App->tex->BlitFont(488, 75, debug_font, debug_text);
+
 	}
 	
 
