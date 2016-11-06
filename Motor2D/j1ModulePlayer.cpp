@@ -6,6 +6,7 @@
 #include "j1Input.h"
 #include "p2Log.h"
 #include "j1Pathfinding.h"
+#include "j1Audio.h"
 
 j1ModulePlayer::j1ModulePlayer()
 {
@@ -31,9 +32,11 @@ bool j1ModulePlayer::Start()
 {
 	player_texture = App->tex->Load("textures/purple_robot.png");
 	
-	update_rate = 650;
+	update_rate = 150;
 	
 	path_cell = 0;
+
+	steps_fx = App->audio->LoadFx("audio/fx/steps_fx.wav");
 
 	if (player_texture != NULL)return true;
 	
@@ -44,7 +47,7 @@ bool j1ModulePlayer::Start()
 bool j1ModulePlayer::PreUpdate()
 {
 	//Update the player direction if get user input
-	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)player_direction = WEST;
+	if		(App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)player_direction = WEST;
 	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)player_direction = NORTH_WEST;
 	else if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)player_direction = NORTH;
 	else if (App->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)player_direction = NORTH_EAST;
@@ -60,6 +63,7 @@ bool j1ModulePlayer::Update(float dt)
 {
 	if (UpdateTick() == true) {
 
+		//Player Input Move
 		if (player_direction == WEST) { player_coordinates.x--; player_coordinates.y++; player_direction = NO_DIR; }
 		if (player_direction == NORTH_WEST) { player_coordinates.x--; player_direction = NO_DIR; }
 		if (player_direction == NORTH) {  player_coordinates.y--; player_coordinates.x--; player_direction = NO_DIR; }
@@ -69,6 +73,7 @@ bool j1ModulePlayer::Update(float dt)
 		if (player_direction == SOUTH) { player_coordinates.x++; player_coordinates.y++; player_direction = NO_DIR; }
 		if (player_direction == SOUTH_WEST) { player_coordinates.y++; player_direction = NO_DIR; }
 
+		//Player run the path
 		if (App->pathfinding->last_path.Count() > 0) {
 			
 			if (player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
@@ -76,8 +81,15 @@ bool j1ModulePlayer::Update(float dt)
 				if (path_cell < App->pathfinding->last_path.Count() - 1)path_cell++;
 				else path_cell = 0;
 				player_coordinates = *App->pathfinding->last_path.At(path_cell);
+				App->audio->PlayFx(steps_fx);
 
 			}
+			else path_cell = 0;
+		}
+
+		//Player Independent Teleport
+		if (App->map->Is_Portal(player_coordinates.x, player_coordinates.y)) {
+			player_coordinates = App->map->GetBestPortal(App->pathfinding->goal);
 		}
 	}
 

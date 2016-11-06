@@ -61,14 +61,19 @@ private:
 	//Check if the player update is avaliable
 	bool UpdateTick();
 
-public:
+
 
 	SDL_Texture*	player_texture;
 	
-	iPoint			player_coordinates;
-
 	DIRECTION		player_direction;
 
 	uint			path_cell;
+
+	uint			steps_fx;
+
+public:
+
+	iPoint			player_coordinates;
+
 };
 #endif

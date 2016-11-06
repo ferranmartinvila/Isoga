@@ -129,7 +129,7 @@ bool j1Audio::PlayMusic(const char* path, float fade_time)
 			}
 		}
 	}
-
+	Mix_VolumeMusic(15);
 	LOG("Successfully playing %s", path);
 	return ret;
 }

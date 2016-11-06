@@ -51,7 +51,7 @@ bool j1Scene::Start()
 	}
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
-
+	
 	//Load textures
 	tex_goal = App->tex->Load("textures/goal_texture.png");
 	tex_path = App->tex->Load("textures/path_texture.png");
@@ -165,7 +165,7 @@ bool j1Scene::Update(float dt)
 	App->input->GetMousePosition(x, y);
 	iPoint map_coordinates = App->map->WorldToMap(x - App->render->camera.x, y - App->render->camera.y);
 
-	p2SString title("MAP DATA[Map: %dx%d Tiles: %dx%d Tilesets: %d Tile: %d,%d]     TIME DATA[Time: %u  AvgFPS: %.2f  FPS: %i Frames: %i]",
+	p2SString title("MAP DATA[Map: %dx%d Tiles: %dx%d Tilesets: %d Tile: %d,%d]     TIME DATA[Time: %u  AvgFPS: %.2f  FPS: %i Frames: %i]    PLAYER[X: %i  Y: %i]",
 		//Map Data
 		App->map->data.width, App->map->data.height,
 		App->map->data.tile_width, App->map->data.tile_height,
@@ -175,7 +175,9 @@ bool j1Scene::Update(float dt)
 		App->GetTime(),
 		App->GetAvgFPS(),
 		App->GetFPS(),
-		App->GetFramesCount());
+		App->GetFramesCount(),
+		App->player->player_coordinates.x,
+		App->player->player_coordinates.y);
 
 	App->win->SetTitle(title.GetString());
 	return true;
