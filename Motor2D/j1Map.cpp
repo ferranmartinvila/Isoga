@@ -82,10 +82,18 @@ int j1Map::MovementCost(int x, int y) const
 	{
 		int id = data.layers.start->next->data->Get(x, y);
 
-		if (id == 0)
-			ret = 3;
-		else
-			ret = 0;
+		ret = id;
+
+		switch (id) {
+		case 27:
+			ret = 26;
+			break;
+		case 26:
+			ret = 27;
+			break;
+
+
+		}
 	}
 
 	return ret;

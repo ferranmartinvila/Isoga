@@ -69,7 +69,7 @@ void j1Pathfinding::SetWalkabilityMap(uint width, uint height, uchar* data)
 	memcpy(walkability_map, data, width*height);
 }
 
-int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool diagonals) {
+int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool diagonals, bool walk_cost) {
 	
 
 	// TODO 1: if origin or destination are not walkable, return -1
@@ -95,11 +95,11 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	while (open_list.list.count() > 0) {
 
 		// TODO 3: Move the lowest score cell from open list to the closed list
-		  close_list.list.add(open_list.GetNodeLowestScore()->data);
+		  close_list.list.add(open_list.GetNodeLowestScore(walk_cost)->data);
 		
-		LOG("G:%i H:%i\n", open_list.GetNodeLowestScore()->data.g, open_list.GetNodeLowestScore()->data.h);
+		LOG("G:%i H:%i\n", open_list.GetNodeLowestScore(walk_cost)->data.g, open_list.GetNodeLowestScore(walk_cost)->data.h);
 		
-		open_list.list.del(open_list.GetNodeLowestScore());
+		open_list.list.del(open_list.GetNodeLowestScore(walk_cost));
 
 		
 		// TODO 4: If we just added the destination, we are done!
@@ -167,8 +167,8 @@ const p2DynArray<iPoint>* j1Pathfinding::GetLastPath() const
 
 bool j1Pathfinding::CheckBoundaries(const iPoint& pos) const
 {
-	return (pos.x >= 0 && pos.x <= (int)width &&
-		pos.y >= 0 && pos.y <= (int)height);
+	return (pos.x >= 0 && pos.x < (int)width &&
+		pos.y >= 0 && pos.y < (int)height);
 }
 
 bool j1Pathfinding::IsWalkable(const iPoint& pos) const
@@ -259,7 +259,6 @@ void j1Pathfinding::PropagateDijkstra() {
 
 					close.add(neighbor[k]);
 					open.Push(neighbor[k],	App->map->MovementCost(neighbor[k].x,neighbor[k].y));
-					LOG("tile walk: %i", GetTileWalkability(neighbor[k]));
 
 			}
 
@@ -356,17 +355,22 @@ p2List_item<PathNode>* PathList::Find(const iPoint& point) const
 // PathList ------------------------------------------------------------------------
 // Returns the Pathnode with lowest score in this list or NULL if empty
 // ---------------------------------------------------------------------------------
-p2List_item<PathNode>* PathList::GetNodeLowestScore() const
+p2List_item<PathNode>* PathList::GetNodeLowestScore(bool walk_cost) const
 {
 	p2List_item<PathNode>* ret = NULL;
+	
 	int min = 65535;
-
+	int item_walk_cost = 0;
+	
 	p2List_item<PathNode>* item = list.end;
 	while (item)
 	{
-		if (item->data.Score() < min)
+		//If walk cost is checked it calculates it
+		if (walk_cost)item_walk_cost = App->map->MovementCost(item->data.pos.x, item->data.pos.y);
+		
+		if ((item->data.Score() + item_walk_cost * WALK_COST_IMP) < min)
 		{
-			min = item->data.Score();
+			min = item->data.Score() + item_walk_cost * WALK_COST_IMP;
 			ret = item;
 		}
 		item = item->prev;

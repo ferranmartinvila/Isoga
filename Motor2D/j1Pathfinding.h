@@ -11,6 +11,7 @@
 
 #define DEFAULT_PATH_LENGTH 50
 #define INVALID_WALK_CODE 255
+#define WALK_COST_IMP 4
 
 enum TERRAIN {
 
@@ -52,7 +53,7 @@ public:
 	void SetWalkabilityMap(uint width, uint height, uchar* data);
 
 	//create a path from a to b
-	int CreatePath(const iPoint& origin, const iPoint& destination, bool diagonals);
+	int CreatePath(const iPoint& origin, const iPoint& destination, bool diagonals, bool walk_cost = false);
 
 	const p2DynArray<iPoint>* GetLastPath() const;
 
@@ -139,7 +140,7 @@ struct PathList
 	p2List_item<PathNode>* Find(const iPoint& point) const;
 
 	// Returns the Pathnode with lowest score in this list or NULL if empty
-	p2List_item<PathNode>* GetNodeLowestScore() const;
+	p2List_item<PathNode>* GetNodeLowestScore(bool walk_cost) const;
 
 	// -----------
 	// The list itself, note they are not pointers!

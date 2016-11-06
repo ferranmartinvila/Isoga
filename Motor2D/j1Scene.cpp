@@ -117,6 +117,9 @@ bool j1Scene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_4) == KEY_DOWN) 
 		App->pathfinding->CreatePath(App->pathfinding->start, App->pathfinding->goal, true);
 
+	if (App->input->GetKey(SDL_SCANCODE_5) == KEY_DOWN)
+		App->pathfinding->CreatePath(App->pathfinding->start, App->pathfinding->goal, true, true);
+
 	//DEBUG------------------------------------------------
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {
 		App->map->CollideLayer();
