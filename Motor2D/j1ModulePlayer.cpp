@@ -30,12 +30,16 @@ bool j1ModulePlayer::Awake(pugi::xml_node &config)
 
 bool j1ModulePlayer::Start()
 {
+	//Player Texture
 	player_texture = App->tex->Load("textures/purple_robot.png");
 	
-	update_rate = 150;
+	//Player Update rate
+	update_rate = 250;
 	
+	//Position in the path when running it
 	path_cell = 0;
 
+	//Steps Fx
 	steps_fx = App->audio->LoadFx("audio/fx/steps_fx.wav");
 
 	if (player_texture != NULL)return true;
@@ -61,6 +65,8 @@ bool j1ModulePlayer::PreUpdate()
 
 bool j1ModulePlayer::Update(float dt)
 {
+
+	//TickUpdate
 	if (UpdateTick() == true) {
 
 		//Player Input Move
@@ -75,12 +81,14 @@ bool j1ModulePlayer::Update(float dt)
 
 		//Player run the path
 		if (App->pathfinding->last_path.Count() > 0) {
-			
+		
 			if (player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
 				
 				if (path_cell < App->pathfinding->last_path.Count() - 1)path_cell++;
 				else path_cell = 0;
+				
 				player_coordinates = *App->pathfinding->last_path.At(path_cell);
+				//Play steps fx
 				App->audio->PlayFx(steps_fx);
 
 			}
@@ -88,11 +96,18 @@ bool j1ModulePlayer::Update(float dt)
 		}
 
 		//Player Independent Teleport
-		if (App->map->Is_Portal(player_coordinates.x, player_coordinates.y)) {
-			player_coordinates = App->map->GetBestPortal(App->pathfinding->goal);
+		iPoint best_portal = App->map->GetBestPortal(App->pathfinding->goal);
+		
+		if (player_coordinates != best_portal && App->map->Is_Portal(player_coordinates.x, player_coordinates.y)) {
+
+			//Tp player
+			player_coordinates = best_portal;
+			//Play portal fx
+		
 		}
 	}
 
+	//Update
 	App->player->Draw();
 
 	return true;

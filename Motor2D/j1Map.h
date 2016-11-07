@@ -169,8 +169,11 @@ private:
 
 public:
 
+	//Check if the cell is a portal
 	bool Is_Portal(int& x, int& y)const;
-	iPoint GetBestPortal(iPoint& goal )const;
+	
+	//Return the coordinates of the nearest portal from X point
+	iPoint GetBestPortal(const iPoint& goal)const;
 
 };
 

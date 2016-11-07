@@ -28,6 +28,8 @@ bool j1Map::Awake(pugi::xml_node& config)
 	//Temporal portals locator
 	portals.add({ 17,4 });
 	portals.add({ 10,23 });
+	portals.add({ 3,4 });
+	portals.add({ 23,23 });
 
 	return ret;
 }
@@ -298,7 +300,7 @@ bool j1Map::Is_Portal(int & x, int & y) const
 	return false;
 }
 
-iPoint j1Map::GetBestPortal(iPoint& goal) const
+iPoint j1Map::GetBestPortal(const iPoint& point) const
 {
 	iPoint current;
 	iPoint perf_point = portals.start->data;
@@ -307,9 +309,8 @@ iPoint j1Map::GetBestPortal(iPoint& goal) const
 		
 		current = portals.At(k)->data;
 
-		if (current.DistanceManhattan(goal) < perf_point.DistanceManhattan(goal))perf_point = current;
+		if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point))perf_point = current;
 		
-		LOG("MANH_DIST: %i", current.DistanceManhattan(goal));
 	}
 	return perf_point;
 }

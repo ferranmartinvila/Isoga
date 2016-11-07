@@ -138,7 +138,7 @@ struct PathList
 	p2List_item<PathNode>* Find(const iPoint& point) const;
 
 	// Returns the Pathnode with lowest score in this list or NULL if empty
-	p2List_item<PathNode>* GetNodeLowestScore(bool walk_cost) const;
+	p2List_item<PathNode>* GetNodeLowestScore(const iPoint& to,  bool walk_cost) const;
 
 	// -----------
 	// The list itself, note they are not pointers!

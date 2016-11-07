@@ -93,8 +93,21 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	PathList open_list;
 	PathList close_list;
 
+	//Check the best way
+	iPoint current_goal = goal;
+	//Best portal enter
+	iPoint portal_A = App->map->GetBestPortal(origin);
+	//Best portal exit
+	iPoint portal_B = App->map->GetBestPortal(goal);
+
+	//Calculates the distance using portals
+	uint portal_way_distance = origin.DistanceManhattan(portal_A) + goal.DistanceManhattan(portal_B);
+
+	//If portal way is shortest current goal is reach the best portal start
+	if (portal_way_distance < origin.DistanceManhattan(goal))current_goal = portal_A;
+
 	//Origin node
-	PathNode origin_node(0,origin.DistanceManhattan(goal),origin,nullptr);
+	PathNode origin_node(0,origin.DistanceManhattan(current_goal),origin,nullptr);
 
 	// Add the origin tile to open
 	open_list.list.add(origin_node);
@@ -102,35 +115,62 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	// Iterate while we have tile in the open list
 	while (open_list.list.count() > 0) {
 
-		// TODO 3: Move the lowest score cell from open list to the closed list
-		  close_list.list.add(open_list.GetNodeLowestScore(walk_cost)->data);
+		//Move the lowest score cell from open list to the closed list
+		close_list.list.add(open_list.GetNodeLowestScore(current_goal,walk_cost)->data);
 		
-		LOG("G:%i H:%i\n", open_list.GetNodeLowestScore(walk_cost)->data.g, open_list.GetNodeLowestScore(walk_cost)->data.h);
+		LOG("G:%i H:%i\n", open_list.GetNodeLowestScore(current_goal,walk_cost)->data.g, open_list.GetNodeLowestScore(current_goal,walk_cost)->data.h);
 		
-		open_list.list.del(open_list.GetNodeLowestScore(walk_cost));
+		open_list.list.del(open_list.GetNodeLowestScore(current_goal,walk_cost));
 
 		
 		// TODO 4: If we just added the destination, we are done!
-		if (close_list.list.end->data.pos == goal) {
-			// Backtrack to create the final path
-			for (p2List_item<PathNode>* node = close_list.list.end; node->data.parent != nullptr; node = close_list.Find(node->data.parent->pos)) {
+		if (close_list.list.end->data.pos == current_goal) {
+			if (current_goal != goal) {
 
-				last_path.PushBack(node->data.pos);
+				PathNode portal_node(portal_B.DistanceManhattan(origin), portal_B.DistanceManhattan(goal), portal_B, close_list.list.end->data.parent);
+
+				//Add the used portal node to the lists
+				open_list.list.add(portal_node);
+				close_list.list.add(portal_node);
 				
-			}
-			last_path.PushBack(origin_node.pos);
-			// Use the Pathnode::parent and Flip() the path when you are finish
-			last_path.Flip();
+				//Sets portal A like the next portal used
+				portal_A = App->map->GetBestPortal(current_goal);
+				
+				//Set current goal to the final goal
+				current_goal = goal;
+			
+				//Set portal B like the nearest portal to the final goal
+				portal_B = App->map->GetBestPortal(current_goal);
 
-			return close_list.list.count();
+				//portal way distance now is the last portal used + the portal exit since the final goal
+				portal_way_distance = portal_node.pos.DistanceManhattan(portal_A) + portal_B.DistanceManhattan(current_goal);
+				
+				//if theres still a best portal path will focus current goal to it
+				if (portal_way_distance < portal_node.pos.DistanceManhattan(goal))current_goal = portal_A;
+
+			}
+			else {
+				// Backtrack to create the final path
+				for (p2List_item<PathNode>* node = close_list.list.end; node->data.parent != nullptr; node = close_list.Find(node->data.parent->pos)) {
+
+					last_path.PushBack(node->data.pos);
+
+				}
+
+				last_path.PushBack(origin_node.pos);
+
+				last_path.Flip();
+
+				return close_list.list.count();
+			}
 		}
 
-		// TODO 5: Fill a list of all adjancent nodes
+		//Fill a list of all adjancent nodes
 		PathList adjacent_nodes;
 		
 		close_list.list.end->data.FindWalkableAdjacents(adjacent_nodes, diagonals);
 
-		// TODO 6: Iterate adjancent nodes:
+		//Iterate adjancent nodes:
 		for (p2List_item<PathNode>* adjacent_node = adjacent_nodes.list.start; adjacent_node != NULL; adjacent_node = adjacent_node->next) {
 			
 			// ignore nodes in the closed list
@@ -141,23 +181,27 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 			
 			// If it is NOT found
 			
-			// If it is already in the open list 
+			
 			p2List_item<PathNode>* node = open_list.Find(adjacent_node->data.pos);
+			
+			// If it is already in the open list 
 			if (node != NULL) {
 
+
 				//Check if it is a better path (compare G)
-				adjacent_node->data.CalculateF(goal);
+				adjacent_node->data.CalculateF(current_goal);
 				if (adjacent_node->data.g < node->data.g) {
 
 					// If it is a better path, Update the parent
-					node->data.parent  = adjacent_node->data.parent;
+					node->data.parent = adjacent_node->data.parent;
 
 				}
 			}
+
 			//Calculate its F and add it to the open list
 			else{
 
-				adjacent_node->data.CalculateF(goal);
+				adjacent_node->data.CalculateF(current_goal);
 				open_list.list.add(adjacent_node->data);
 
 			}
@@ -365,7 +409,7 @@ p2List_item<PathNode>* PathList::Find(const iPoint& point) const
 // PathList ------------------------------------------------------------------------
 // Returns the Pathnode with lowest score in this list or NULL if empty
 // ---------------------------------------------------------------------------------
-p2List_item<PathNode>* PathList::GetNodeLowestScore(bool walk_cost) const
+p2List_item<PathNode>* PathList::GetNodeLowestScore(const iPoint& to, bool walk_cost) const
 {
 	p2List_item<PathNode>* ret = NULL;
 	
@@ -377,6 +421,9 @@ p2List_item<PathNode>* PathList::GetNodeLowestScore(bool walk_cost) const
 	{
 		//If walk cost is checked it calculates it
 		if (walk_cost)item_walk_cost = App->pathfinding->GetTileWalkability(item->data.pos);
+		
+		//Recalculatess
+		item->data.CalculateF(to);
 		if ((item->data.Score() + (item_walk_cost * WALK_COST_IMP)) < min)
 		{
 			min = item->data.Score() + (item_walk_cost * WALK_COST_IMP);
@@ -410,28 +457,28 @@ uint PathNode::FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) con
 	// north
 	cell.create(pos.x, pos.y + 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
+		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	// south
 	cell.create(pos.x, pos.y - 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
+		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	// east
 	cell.create(pos.x + 1, pos.y);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
+		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	// west
 	cell.create(pos.x - 1, pos.y);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
+		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
@@ -482,7 +529,8 @@ int PathNode::Score() const
 // ----------------------------------------------------------------------------------
 int PathNode::CalculateF(const iPoint& destination)
 {
-	g = parent->g + 1;
+	if (parent == nullptr)g = 0;
+	else g = parent->g + 1;
 	h = pos.DistanceManhattan(destination);
 		//pos.DistanceTo(destination);
 
