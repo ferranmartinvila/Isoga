@@ -34,13 +34,18 @@ bool j1ModulePlayer::Start()
 	player_texture = App->tex->Load("textures/purple_robot.png");
 	
 	//Player Update rate
-	update_rate = 250;
+	update_rate = 350;
 	
 	//Position in the path when running it
 	path_cell = 0;
 
 	//Steps Fx
 	steps_fx = App->audio->LoadFx("audio/fx/steps_fx.wav");
+	//Player tp Fx
+	player_tp_fx = App->audio->LoadFx("audio/fx/player_tp_fx.wav");
+	//Path complete fx
+	path_complete_fx = App->audio->LoadFx("audio/fx/path_complete_fx.wav");
+
 
 	if (player_texture != NULL)return true;
 	
@@ -85,11 +90,16 @@ bool j1ModulePlayer::Update(float dt)
 			if (player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
 				
 				if (path_cell < App->pathfinding->last_path.Count() - 1)path_cell++;
-				else path_cell = 0;
+				else {
+					App->audio->PlayFx(path_complete_fx);
+					path_cell = 0;
+				}
+
 				
 				player_coordinates = *App->pathfinding->last_path.At(path_cell);
 				//Play steps fx
 				App->audio->PlayFx(steps_fx);
+				if (App->map->Is_Portal(player_coordinates.x, player_coordinates.y))App->audio->PlayFx(player_tp_fx);
 
 			}
 			else path_cell = 0;
@@ -103,7 +113,7 @@ bool j1ModulePlayer::Update(float dt)
 			//Tp player
 			player_coordinates = best_portal;
 			//Play portal fx
-		
+			App->audio->PlayFx(player_tp_fx);
 		}
 	}
 

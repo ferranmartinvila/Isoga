@@ -82,14 +82,14 @@ void j1Pathfinding::SetWalkCostMap(uint widht, uint height, uchar * data)
 int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool diagonals, bool walk_cost) {
 	
 
-	// TODO 1: if origin or destination are not walkable, return -1
+	//If origin or destination are not walkable, return -1
 	if (IsWalkable(origin) == false || IsWalkable(goal) == false)return -1;
 	
 
 	//Clean the last path
 	last_path.Clear();
 
-	// TODO 2: Create two lists: open, close
+	//Create two lists: open, close
 	PathList open_list;
 	PathList close_list;
 
@@ -116,22 +116,25 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	while (open_list.list.count() > 0) {
 
 		//Move the lowest score cell from open list to the closed list
-		close_list.list.add(open_list.GetNodeLowestScore(current_goal,walk_cost)->data);
+		PathNode open_list_lowest = open_list.GetNodeLowestScore(current_goal, walk_cost)->data;
 		
-		LOG("G:%i H:%i\n", open_list.GetNodeLowestScore(current_goal,walk_cost)->data.g, open_list.GetNodeLowestScore(current_goal,walk_cost)->data.h);
+		close_list.list.add(open_list_lowest);
+		open_list.list.del(open_list.Find(open_list_lowest.pos));
+
+		LOG("G:%i H:%i\n", open_list_lowest.g, open_list_lowest.h);
 		
-		open_list.list.del(open_list.GetNodeLowestScore(current_goal,walk_cost));
+		
 
 		
 		// TODO 4: If we just added the destination, we are done!
 		if (close_list.list.end->data.pos == current_goal) {
 			if (current_goal != goal) {
 
-				PathNode portal_node(portal_B.DistanceManhattan(origin), portal_B.DistanceManhattan(goal), portal_B, close_list.list.end->data.parent);
-
 				//Add the used portal node to the lists
-				open_list.list.add(portal_node);
-				close_list.list.add(portal_node);
+				PathNode portal_node_B(portal_B.DistanceManhattan(current_goal), portal_B.DistanceManhattan(goal), portal_B, close_list.list.end->data.parent);
+				open_list.list.add(portal_node_B);
+				close_list.list.add(portal_node_B);
+
 				
 				//Sets portal A like the next portal used
 				portal_A = App->map->GetBestPortal(current_goal);
@@ -143,10 +146,10 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 				portal_B = App->map->GetBestPortal(current_goal);
 
 				//portal way distance now is the last portal used + the portal exit since the final goal
-				portal_way_distance = portal_node.pos.DistanceManhattan(portal_A) + portal_B.DistanceManhattan(current_goal);
+				portal_way_distance = portal_node_B.pos.DistanceManhattan(portal_A) + portal_B.DistanceManhattan(current_goal);
 				
 				//if theres still a best portal path will focus current goal to it
-				if (portal_way_distance < portal_node.pos.DistanceManhattan(goal))current_goal = portal_A;
+				if (portal_way_distance < portal_node_B.pos.DistanceManhattan(goal))current_goal = portal_A;
 
 			}
 			else {
@@ -457,28 +460,24 @@ uint PathNode::FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) con
 	// north
 	cell.create(pos.x, pos.y + 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	// south
 	cell.create(pos.x, pos.y - 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	// east
 	cell.create(pos.x + 1, pos.y);
 	if (App->pathfinding->IsWalkable(cell)) {
-		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	// west
 	cell.create(pos.x - 1, pos.y);
 	if (App->pathfinding->IsWalkable(cell)) {
-		//if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
@@ -488,28 +487,24 @@ uint PathNode::FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) con
 	//north-east
 	cell.create(pos.x + 1, pos.y + 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	//north-west
 	cell.create(pos.x - 1, pos.y + 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	//south-east
 	cell.create(pos.x + 1, pos.y - 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 
 	//south-west
 	cell.create(pos.x - 1, pos.y - 1);
 	if (App->pathfinding->IsWalkable(cell)) {
-		if (App->map->Is_Portal(cell.x, cell.y))cell = App->map->GetBestPortal(App->pathfinding->goal);
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 	}
 

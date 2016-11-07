@@ -70,6 +70,8 @@ private:
 	uint			path_cell;
 
 	uint			steps_fx;
+	uint			player_tp_fx;
+	uint			path_complete_fx;
 
 public:
 
