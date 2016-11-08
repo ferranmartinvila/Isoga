@@ -96,9 +96,9 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	//Check the best way
 	iPoint current_goal = goal;
 	//Best portal enter
-	iPoint portal_A = App->map->GetBestPortal(origin);
+	iPoint portal_A = GetBestPortal(origin);
 	//Best portal exit
-	iPoint portal_B = App->map->GetBestPortal(goal);
+	iPoint portal_B = GetBestPortal(goal);
 
 	//Calculates the distance using portals
 	uint portal_way_distance = origin.DistanceManhattan(portal_A) + goal.DistanceManhattan(portal_B);
@@ -137,13 +137,13 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 				
 				//Sets portal A like the next portal used
-				portal_A = App->map->GetBestPortal(current_goal);
+				portal_A = GetBestPortal(current_goal);
 				
 				//Set current goal to the final goal
 				current_goal = goal;
 			
 				//Set portal B like the nearest portal to the final goal
-				portal_B = App->map->GetBestPortal(current_goal);
+				portal_B = GetBestPortal(current_goal);
 
 				//portal way distance now is the last portal used + the portal exit since the final goal
 				portal_way_distance = portal_node_B.pos.DistanceManhattan(portal_A) + portal_B.DistanceManhattan(current_goal);
@@ -249,6 +249,48 @@ void j1Pathfinding::ResetPath()
 		close.clear();
 		goal.SetToZero();
 	}
+}
+
+void j1Pathfinding::CretatePortals()
+{
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+
+			if (walk_cost_map[(y*width) + x] == 1) portals.PushBack({ x,y });
+
+		}
+	}
+
+}
+
+bool j1Pathfinding::Is_Portal(int & x, int & y) const
+{
+	uint portals_num = portals.Count();
+
+	for (uint k = 0; k < portals_num; k++) {
+		
+		if (portals[k].x == x && portals[k].y == y)return true;
+
+	}
+	return false;
+}
+
+iPoint j1Pathfinding::GetBestPortal(const iPoint& point) const
+{
+	iPoint current;
+	iPoint perf_point = portals[0];
+
+	uint portals_num = portals.Count();
+
+	for (uint k = 0; k < portals.Count(); k++) {
+
+		current = portals[k];
+
+		if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point))perf_point = current;
+
+	}
+	return perf_point;
 }
 
 void j1Pathfinding::PropagateBFS()

@@ -76,6 +76,17 @@ public:
 
 	p2DynArray<iPoint> portals;
 
+public:
+
+	//Read portals from map
+	void CretatePortals();
+
+	//Check if the cell is a portal
+	bool Is_Portal(int& x, int& y)const;
+
+	//Return the coordinates of the nearest portal from X point
+	iPoint GetBestPortal(const iPoint& goal)const;
+
 private:
 
 	bool correct_path = false;

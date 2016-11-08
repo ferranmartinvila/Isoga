@@ -85,13 +85,18 @@ bool j1ModulePlayer::Update(float dt)
 		if (player_direction == SOUTH_WEST) { player_coordinates.y++; player_direction = NO_DIR; }
 
 		//Player run the path
-		if (App->pathfinding->last_path.Count() > 0) {
+		uint path_size = App->pathfinding->last_path.Count();
 		
-			if (player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
+		if (path_size > 0) {
+		
+			if (path_cell <= path_size -1 && player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
 				
-				if (path_cell < App->pathfinding->last_path.Count() - 1)path_cell++;
+				if (path_cell < path_size - 1)path_cell++;
+				
 				else {
+					//Path complete fx
 					App->audio->PlayFx(path_complete_fx);
+					//Reset player path cell
 					path_cell = 0;
 				}
 
@@ -99,21 +104,23 @@ bool j1ModulePlayer::Update(float dt)
 				player_coordinates = *App->pathfinding->last_path.At(path_cell);
 				//Play steps fx
 				App->audio->PlayFx(steps_fx);
-				if (App->map->Is_Portal(player_coordinates.x, player_coordinates.y))App->audio->PlayFx(player_tp_fx);
+				if (App->pathfinding->Is_Portal(player_coordinates.x, player_coordinates.y))App->audio->PlayFx(player_tp_fx);
 
 			}
 			else path_cell = 0;
 		}
 
-		//Player Independent Teleport
-		iPoint best_portal = App->map->GetBestPortal(App->pathfinding->goal);
-		
-		if (player_coordinates != best_portal && App->map->Is_Portal(player_coordinates.x, player_coordinates.y)) {
+		else {
+			//Player Independent Teleport
+			iPoint best_portal = App->pathfinding->GetBestPortal(App->pathfinding->goal);
 
-			//Tp player
-			player_coordinates = best_portal;
-			//Play portal fx
-			App->audio->PlayFx(player_tp_fx);
+			if (player_coordinates != best_portal && App->pathfinding->Is_Portal(player_coordinates.x, player_coordinates.y)) {
+
+				//Tp player
+				player_coordinates = best_portal;
+				//Play portal fx
+				App->audio->PlayFx(player_tp_fx);
+			}
 		}
 	}
 

@@ -38,13 +38,17 @@ bool j1Scene::Start()
 
 		int w, h;
 		uchar* data = NULL;
+		//Create Walkability Map
 		if (App->map->CreateWalkabilityMap(w, h, &data))
 			App->pathfinding->SetWalkabilityMap(w, h, data);
 
 		RELEASE_ARRAY(data);
 
-		if (App->map->CreateWalkCostMap(w, h, &data))
+		//Create walk Cost Map and Portals Array
+		if (App->map->CreateWalkCostMap(w, h, &data)) {
 			App->pathfinding->SetWalkCostMap(w, h, data);
+			App->pathfinding->CretatePortals();
+		}
 
 		RELEASE_ARRAY(data);
 

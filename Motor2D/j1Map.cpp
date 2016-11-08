@@ -24,12 +24,6 @@ bool j1Map::Awake(pugi::xml_node& config)
 	bool ret = true;
 
 	folder.create(config.child("folder").child_value());
-	
-	//Temporal portals locator
-	portals.add({ 17,4 });
-	portals.add({ 10,23 });
-	portals.add({ 3,4 });
-	portals.add({ 23,23 });
 
 	return ret;
 }
@@ -287,32 +281,6 @@ void j1Map::CollideLayer() {
 
 	collide_layer = !collide_layer;
 
-}
-
-bool j1Map::Is_Portal(int & x, int & y) const
-{
-	iPoint point;
-	point.create(x, y);
-	for (uint k = 0; k < portals.count(); k++) {
-		if (portals.At(k)->data.x == x && portals.At(k)->data.y == y)return true;
-	
-	}
-	return false;
-}
-
-iPoint j1Map::GetBestPortal(const iPoint& point) const
-{
-	iPoint current;
-	iPoint perf_point = portals.start->data;
-
-	for (uint k = 0; k < portals.count(); k++) {
-		
-		current = portals.At(k)->data;
-
-		if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point))perf_point = current;
-		
-	}
-	return perf_point;
 }
 
 SDL_Rect TileSet::GetTileRect(int id) const

@@ -165,16 +165,6 @@ private:
 
 	bool collide_layer = false;
 
-	p2List<iPoint> portals;
-
-public:
-
-	//Check if the cell is a portal
-	bool Is_Portal(int& x, int& y)const;
-	
-	//Return the coordinates of the nearest portal from X point
-	iPoint GetBestPortal(const iPoint& goal)const;
-
 };
 
 #endif // __j1MAP_H__
