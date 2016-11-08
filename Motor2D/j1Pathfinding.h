@@ -74,18 +74,28 @@ public:
 	iPoint start;
 	iPoint goal;
 
-	p2DynArray<iPoint> portals;
+	p2DynArray<iPoint> A_portals;
+	p2DynArray<iPoint> B_portals;
+	p2DynArray<iPoint> C_portals;
+	p2DynArray<iPoint> D_portals;
+	p2DynArray<iPoint> E_portals;
+
+	p2DynArray<p2DynArray<iPoint>> portals;
+
 
 public:
 
 	//Read portals from map
-	void CretatePortals();
+	void CreatePortals();
 
 	//Check if the cell is a portal
 	bool Is_Portal(int& x, int& y)const;
 
 	//Return the coordinates of the nearest portal from X point
 	iPoint GetBestPortal(const iPoint& goal)const;
+
+	//Return the coordinate of the nearest X family portal to the goal
+	iPoint GetBestFamilyPortal(const iPoint& portal, const iPoint& goal)const;
 
 private:
 

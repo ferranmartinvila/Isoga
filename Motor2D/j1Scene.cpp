@@ -34,7 +34,7 @@ bool j1Scene::Awake()
 bool j1Scene::Start()
 {
 	//Load the map
-	if (App->map->Load("iso_walk.tmx")) {
+	if (App->map->Load("portals_walk.tmx")) {
 
 		int w, h;
 		uchar* data = NULL;
@@ -47,11 +47,11 @@ bool j1Scene::Start()
 		//Create walk Cost Map and Portals Array
 		if (App->map->CreateWalkCostMap(w, h, &data)) {
 			App->pathfinding->SetWalkCostMap(w, h, data);
-			App->pathfinding->CretatePortals();
 		}
 
 		RELEASE_ARRAY(data);
 
+		App->pathfinding->CreatePortals();
 	}
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");

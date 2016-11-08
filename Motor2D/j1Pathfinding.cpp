@@ -93,14 +93,31 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	PathList open_list;
 	PathList close_list;
 
+	p2List<iPoint> goals;
+
 	//Check the best way
 	iPoint current_goal = goal;
 	//Best portal enter
 	iPoint portal_A = GetBestPortal(origin);
+	/*goals.add(portal_A);
 	//Best portal exit
+	iPoint portal_B = GetBestFamilyPortal(portal_A,goal);
+	goals.add(portal_B);
+	//Calculate portal way
+	iPoint goal_portal = GetBestPortal(goal);
+	while (portal_B != goal_portal) {
+		portal_A = GetBestPortal(portal_B);
+		goals.add(portal_A);
+		portal_B = GetBestFamilyPortal(portal_A, goal);
+		goals.add(portal_B);
+	}
+	if (goals.end == goals.end->prev)for (int k =0; k < 2;k++)goals.del(goals.end);
+	goals.add(goal);
+	//Calculates the distance using portals
+	*/
+
 	iPoint portal_B = GetBestPortal(goal);
 
-	//Calculates the distance using portals
 	uint portal_way_distance = origin.DistanceManhattan(portal_A) + goal.DistanceManhattan(portal_B);
 
 	//If portal way is shortest current goal is reach the best portal start
@@ -251,45 +268,127 @@ void j1Pathfinding::ResetPath()
 	}
 }
 
-void j1Pathfinding::CretatePortals()
+void j1Pathfinding::CreatePortals()
 {
+	//Need to do a best cleaner
+	A_portals.Clear();
+	B_portals.Clear();
+	C_portals.Clear();
+	D_portals.Clear();
+	E_portals.Clear();
 
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 
-			if (walk_cost_map[(y*width) + x] == 1) portals.PushBack({ x,y });
+			switch (walk_cost_map[(y*width) + x])
+			{
+			case 1:
+				A_portals.PushBack({ x,y });
+				break;
+			case 2:
+				B_portals.PushBack({ x,y });
+				break;
+			case 3:
+				C_portals.PushBack({ x,y });
+				break;
+			case 4:
+				D_portals.PushBack({ x,y });
+				break;
+			case 5:
+				E_portals.PushBack({ x,y });
+				break;
+			}
 
 		}
 	}
+
+	portals.PushBack(A_portals);
+	portals.PushBack(B_portals);
+	portals.PushBack(C_portals);
+	portals.PushBack(D_portals);
+	portals.PushBack(E_portals);
 
 }
 
 bool j1Pathfinding::Is_Portal(int & x, int & y) const
 {
-	uint portals_num = portals.Count();
-
-	for (uint k = 0; k < portals_num; k++) {
+	
+	uint portals_family_num = portals.Count();
+	
+	for (uint k = 0; k < portals_family_num; k++) {
 		
-		if (portals[k].x == x && portals[k].y == y)return true;
+		uint portals_num = portals[k].Count();
+		
+		for (uint j = 0; j < portals_num; j++) {
 
+			if (portals.At(k)->At(j)->x == x && portals.At(k)->At(j)->y == y)return true;
+		}
 	}
+
 	return false;
 }
 
 iPoint j1Pathfinding::GetBestPortal(const iPoint& point) const
 {
 	iPoint current;
-	iPoint perf_point = portals[0];
+	
+	iPoint perf_point;
+	
+	perf_point = *portals.At(0)->At(0);
 
-	uint portals_num = portals.Count();
+	uint portals_family_num = portals.Count();
 
-	for (uint k = 0; k < portals.Count(); k++) {
+	for (uint k = 0; k < portals_family_num; k++) {
 
-		current = portals[k];
+		uint portals_num = portals.At(k)->Count();
 
-		if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point))perf_point = current;
+		for (uint j = 0; j < portals_num; j++) {
+
+			current = *portals.At(k)->At(j);
+
+			if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point))perf_point = current;
+
+		}
+	}
+
+	return perf_point;
+}
+
+iPoint j1Pathfinding::GetBestFamilyPortal(const iPoint& portal, const iPoint& goal) const
+{
+	iPoint current;
+
+	iPoint perf_point = portal;
+
+	uint portal_family;
+
+	uint portals_family_num = portals.Count();
+	uint portals_num = 0;
+
+	for (uint k = 0; k < portals_family_num; k++) {
+
+		portals_num = portals.At(k)->Count();
+
+		for (uint j = 0; j < portals_num; j++) {
+
+			current = *portals.At(k)->At(j);
+
+			if (current == portal) {
+				portal_family = k;
+				break;
+			}
+
+		}
+	}
+	portals_num = portals.At(portal_family)->Count();
+
+	for (uint k = 0; k < portals_num; k++) {
+
+		iPoint temp = *portals.At(portal_family)->At(k);
+		if (temp.DistanceManhattan(goal) < portal.DistanceManhattan(goal) && temp != portal)perf_point = *portals.At(portal_family)->At(k);
 
 	}
+
 	return perf_point;
 }
 

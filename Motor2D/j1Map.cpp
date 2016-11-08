@@ -103,21 +103,33 @@ bool j1Map::CreateWalkCostMap(int & width, int & height, uchar ** buffer) const
 				if (tileset != NULL)
 				{
 					uint tile_cost = 0;
-					switch (tile_id - tileset->firstgid) {
-					case 0:
-						tile_cost = 2;
-						break;
-					case 1:
-						tile_cost = 8;
-						break;
-					case 2:
-						tile_cost = 4;
-						break;
-					case 3:
+					switch (tile_id) {
+					case 26:
 						tile_cost = 12;
 						break;
-					case 4:
+					case 27:
+						tile_cost = 20;
+						break;
+					case 28:
+						tile_cost = 14;
+						break;
+					case 29:
+						tile_cost = 25;
+						break;
+					case 30:
 						tile_cost = 1;
+						break;
+					case 31:
+						tile_cost = 2;
+						break;
+					case 32:
+						tile_cost = 3;
+						break;
+					case 33:
+						tile_cost = 4;
+						break;
+					case 34:
+						tile_cost = 5;
 						break;
 					}
 
