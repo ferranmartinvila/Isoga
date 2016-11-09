@@ -96,33 +96,47 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	p2List<iPoint> goals;
 
 	//Check the best way
-	iPoint current_goal = goal;
+	iPoint current_goal;
 	//Best portal enter
-	iPoint portal_A = GetBestPortal(origin);
+	iPoint portal_A = GetBestPortal(origin, true);
 	goals.add(portal_A);
 	//Best portal exit
 	iPoint portal_B = GetBestFamilyPortal(portal_A,goal);
+	goals.add(portal_B);
 	//Calculate portal way
-	iPoint goal_portal = GetBestPortal(goal);
+	iPoint goal_portal = GetBestPortal(goal,true);
 	
-	while (portal_A != goal_portal) {
-		portal_A = GetBestPortal(portal_B);
+	while (portal_A != goal_portal && portal_B != goal_portal) {
+		portal_A = GetBestPortal(portal_B, true);
 		goals.add(portal_A);
 		portal_B = GetBestFamilyPortal(portal_A, goal);
+		goals.add(portal_B);
 	}
 
 	goals.add(goal);
-	//Calculates the distance using portals
 
 	//iPoint portal_B = GetBestPortal(goal);
 
-	uint portal_way_distance = origin.DistanceManhattan(portal_A) + goal.DistanceManhattan(portal_B);
+	uint normal_distance = origin.DistanceManhattan(goal);
 
 	//Calculate complex portal way
+	uint portal_way_distance = 0;
+	portal_way_distance += origin.DistanceManhattan(goals.start->data);
+	uint size = goals.count();
+	for (uint k = 1; k < size; k++) {
+		portal_way_distance += goals.At(k)->data.DistanceManhattan(goals.At(k + 1)->data);
+		k++;
+	}
+	if (CanReach(goals.end->prev->prev->data, goals.end->prev->data))goals.del(goals.end->prev);
 
 
 	//If portal way is shortest current goal is reach the best portal start
-	if (portal_way_distance < origin.DistanceManhattan(goal))current_goal = portal_A;
+	if (normal_distance < portal_way_distance && CanReach(origin,goal)) {
+		goals.clear(); 
+		goals.add(goal);
+	}
+
+	current_goal = goals.start->data;
 
 	//Origin node
 	PathNode origin_node(0,origin.DistanceManhattan(current_goal),origin,nullptr);
@@ -148,26 +162,12 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 		if (close_list.list.end->data.pos == current_goal) {
 			if (current_goal != goal) {
 
-				//Add the used portal node to the lists
-				PathNode portal_node_B(portal_B.DistanceManhattan(current_goal), portal_B.DistanceManhattan(goal), portal_B, close_list.list.end->data.parent);
+				uint index = goals.find(current_goal);
+				current_goal = goals.At(index)->next->next->data;
+
+				PathNode portal_node_B(0, portal_B.DistanceManhattan(current_goal), goals.At(index)->next->data, close_list.list.end->data.parent);
 				open_list.list.add(portal_node_B);
 				close_list.list.add(portal_node_B);
-
-				
-				//Sets portal A like the next portal used
-				portal_A = GetBestPortal(current_goal);
-				
-				//Set current goal to the final goal
-				current_goal = goal;
-			
-				//Set portal B like the nearest portal to the final goal
-				portal_B = GetBestPortal(current_goal);
-
-				//portal way distance now is the last portal used + the portal exit since the final goal
-				portal_way_distance = portal_node_B.pos.DistanceManhattan(portal_A) + portal_B.DistanceManhattan(current_goal);
-				
-				//if theres still a best portal path will focus current goal to it
-				if (portal_way_distance < portal_node_B.pos.DistanceManhattan(goal))current_goal = portal_A;
 
 			}
 			else {
@@ -236,19 +236,24 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 bool j1Pathfinding::CanReach(const iPoint& origin, const iPoint& goal)
 {
+	p2List<iPoint> close_list;
+	p2Queue<iPoint> open_list;
+	open_list.Push(origin);
 	uint distance_to_loop = origin.DistanceManhattan(goal) * 99;
 	
 	while (distance_to_loop > 0) {
-		if (PropagateBFS(origin, goal)) {
-			ResetPath();
+		if (PropagateBFS(origin, goal, &close_list, &open_list)) {
 			LOG("TRUE");
+			close_list.clear();
+			open_list.Clear();
 			return true;
 		}
 
 			distance_to_loop--;
 	}
-	ResetPath();
 	LOG("FALSE");
+	close_list.clear();
+	open_list.Clear();
 	return false;
 }
 
@@ -347,7 +352,7 @@ bool j1Pathfinding::Is_Portal(int & x, int & y) const
 	return false;
 }
 
-iPoint j1Pathfinding::GetBestPortal(const iPoint& point)
+iPoint j1Pathfinding::GetBestPortal(const iPoint& point, bool walking)
 {
 	iPoint current;
 	
@@ -367,7 +372,10 @@ iPoint j1Pathfinding::GetBestPortal(const iPoint& point)
 
 			current = *portals.At(k)->At(j);
 
-			if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point) && current != point && CanReach(current, point))perf_point = current;
+			if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point) && current != point){
+				if (walking && CanReach(current, point))perf_point = current;
+				else if (walking == false)perf_point = current;
+		}
 
 		}
 	}
@@ -379,7 +387,7 @@ iPoint j1Pathfinding::GetBestFamilyPortal(const iPoint& portal, const iPoint& go
 {
 	iPoint current;
 
-	uint portal_family;
+	uint portal_family = 0;
 
 	uint portals_family_num = portals.Count();
 	uint portals_num = 0;
@@ -415,21 +423,28 @@ iPoint j1Pathfinding::GetBestFamilyPortal(const iPoint& portal, const iPoint& go
 	return perf_point;
 }
 
-bool j1Pathfinding::PropagateBFS(const iPoint& origin, const iPoint& goal)
+bool j1Pathfinding::PropagateBFS(const iPoint& origin, const iPoint& goal, p2List<iPoint>* close_list = nullptr, p2Queue<iPoint>* open_list = nullptr)
 {
+	p2List<iPoint>* close_l;
+	if (close_list == nullptr)close_l = &close;
+	else close_l = close_list;
+	
+	p2Queue<iPoint>* open_l;
+	if (open_list == nullptr)open_l = &open;
+	else open_l = open_list;
 
-	if (close.find(goal) != -1) {
-		App->audio->PlayFx(App->scene->goal_find);
+	if (close_l->find(goal) != -1) {
+		//App->audio->PlayFx(App->scene->goal_find);
 		return true;
 	}
 
 	iPoint point;
 		
-	if (open.start != NULL && close.find(goal) == -1) {
+	if (open_l->start != NULL && close_l->find(goal) == -1) {
 
-		open.Pop(point);
+		open_l->Pop(point);
 
-		if (open.find(point) == -1)close.add(point);
+		if (open_l->find(point) == -1)close_l->add(point);
 
 		iPoint neighbor[4];
 
@@ -440,10 +455,10 @@ bool j1Pathfinding::PropagateBFS(const iPoint& origin, const iPoint& goal)
 
 		for (uint j = 0; j < 4; j++) {
 
-			if (close.find(neighbor[j]) == -1 && IsWalkable(neighbor[j])) {
+			if (close_l->find(neighbor[j]) == -1 && IsWalkable(neighbor[j])) {
 
-				open.Push(neighbor[j]);
-				close.add(neighbor[j]);
+				open_l->Push(neighbor[j]);
+				close_l->add(neighbor[j]);
 
 			}
 

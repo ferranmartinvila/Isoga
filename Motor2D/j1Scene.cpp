@@ -115,7 +115,7 @@ bool j1Scene::Update(float dt)
 		App->pathfinding->ResetPath();
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_REPEAT)
-		App->pathfinding->PropagateBFS(App->pathfinding->start, App->pathfinding->goal);
+		App->pathfinding->PropagateBFS(App->pathfinding->start, App->pathfinding->goal,nullptr,nullptr);
 
 	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_REPEAT)
 		App->pathfinding->PropagateDijkstra();

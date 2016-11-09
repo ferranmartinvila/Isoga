@@ -291,7 +291,7 @@ void j1App::FinishUpdate()
 	//Delay if framerate cap is actived
 	float delay = (1000 / framerate_cap) - last_frame_time;
 	delay_error.Start();
-	if (delay > 0) SDL_Delay(delay);
+	if (delay > 0 && delay < 9999999) SDL_Delay(delay);
 	
 	//LOG the delay error
 	//LOG("Real Delay: %f", delay_error.ReadMs());

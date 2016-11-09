@@ -64,7 +64,7 @@ public:
 	uchar GetTileWalkability(const iPoint& pos) const;
 
 	//BFS functions
-	bool PropagateBFS(const iPoint& origin, const iPoint& goal);
+	bool PropagateBFS( const iPoint& origin, const iPoint& goal, p2List<iPoint>* close_list, p2Queue<iPoint>* open_list);
 
 	//Dijkstra functions
 	void PropagateDijkstra();
@@ -95,7 +95,7 @@ public:
 	bool Is_Portal(int& x, int& y)const;
 
 	//Return the coordinates of the nearest portal from X point
-	iPoint GetBestPortal(const iPoint& goal);
+	iPoint GetBestPortal(const iPoint & point, bool walking = false);
 
 	//Return the coordinate of the nearest X family portal to the goal
 	iPoint GetBestFamilyPortal(const iPoint& portal, const iPoint& goal)const;
