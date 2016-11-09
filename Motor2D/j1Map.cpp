@@ -55,8 +55,9 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 
 				if (tileset != NULL)
 				{
-					
-					map[i] = (tile_id - tileset->firstgid) > 2 ? 0 : 1;
+
+					if (tile_id == 29)map[i] == 0;
+					else map[i] == 1;
 
 				}
 			}
@@ -77,74 +78,25 @@ bool j1Map::CreateWalkabilityMap(int& width, int & height, uchar** buffer)const 
 bool j1Map::CreateWalkCostMap(int & width, int & height, uchar ** buffer) const
 {
 	bool ret = false;
-	p2List_item<MapLayer*>* item;
-	item = data.layers.start;
+	
 
-	for (item = data.layers.start; item != NULL; item = item->next)
+	uchar* map = new uchar[width*height];
+	memset(map, 1,width*height);
+
+	for (int y = 0; y < data.height; ++y)
 	{
-		MapLayer* layer = item->data;
-
-		if (layer->properties.Get("Navigation") == false)
-			continue;
-
-		uchar* map = new uchar[layer->width*layer->height];
-		memset(map, 1, layer->width*layer->height);
-
-		for (int y = 0; y < data.height; ++y)
+		for (int x = 0; x < data.width; ++x)
 		{
-			for (int x = 0; x < data.width; ++x)
-			{
 
-				int i = (y*layer->width) + x;
+				map[y*width + x] = MovementCost(x, y);
 
-				int tile_id = layer->Get(x, y);
-				TileSet* tileset = (tile_id > 0) ? GetTilesetFromTileId(tile_id) : NULL;
-
-				if (tileset != NULL)
-				{
-					uint tile_cost = 0;
-					switch (tile_id) {
-					case 26:
-						tile_cost = 12;
-						break;
-					case 27:
-						tile_cost = 20;
-						break;
-					case 28:
-						tile_cost = 14;
-						break;
-					case 29:
-						tile_cost = 25;
-						break;
-					case 30:
-						tile_cost = 1;
-						break;
-					case 31:
-						tile_cost = 2;
-						break;
-					case 32:
-						tile_cost = 3;
-						break;
-					case 33:
-						tile_cost = 4;
-						break;
-					case 34:
-						tile_cost = 5;
-						break;
-					}
-
-					map[i] = tile_cost;
-				}
 			}
 		}
 
-		*buffer = map;
-		width = data.width;
-		height = data.height;
-		ret = true;
-
-		break;
-	}
+	*buffer = map;
+	width = data.width;
+	height = data.height;
+	ret = true;
 
 	return ret;
 }
@@ -160,13 +112,33 @@ int j1Map::MovementCost(int x, int y) const
 		ret = id;
 
 		switch (id) {
-		case 27:
-			ret = 26;
-			break;
 		case 26:
-			ret = 27;
+			ret = 12;
 			break;
-
+		case 27:
+			ret = 20;
+			break;
+		case 28:
+			ret = 14;
+			break;
+		case 29:
+			ret = 0;
+			break;
+		case 30:
+			ret = 1;
+			break;
+		case 31:
+			ret = 2;
+			break;
+		case 32:
+			ret = 3;
+			break;
+		case 33:
+			ret = 4;
+			break;
+		case 34:
+			ret = 5;
+			break;
 
 		}
 	}

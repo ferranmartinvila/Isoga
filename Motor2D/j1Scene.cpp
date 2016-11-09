@@ -115,7 +115,7 @@ bool j1Scene::Update(float dt)
 		App->pathfinding->ResetPath();
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_REPEAT)
-		App->pathfinding->PropagateBFS();
+		App->pathfinding->PropagateBFS(App->pathfinding->start, App->pathfinding->goal);
 
 	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_REPEAT)
 		App->pathfinding->PropagateDijkstra();
@@ -131,6 +131,9 @@ bool j1Scene::Update(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_6) == KEY_DOWN)
 		App->player->player_coordinates = App->pathfinding->start;
+
+	if (App->input->GetKey(SDL_SCANCODE_7) == KEY_DOWN)
+		App->pathfinding->CanReach(App->pathfinding->start, App->pathfinding->goal);
 
 	//DEBUG------------------------------------------------
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {

@@ -49,6 +49,9 @@ public:
 	//create a path from a to b
 	int CreatePath(const iPoint& origin, const iPoint& destination, bool diagonals, bool walk_cost = false);
 
+	//Calculate the path cost
+	bool CanReach(const iPoint& origin, const iPoint& goal);
+
 	const p2DynArray<iPoint>* GetLastPath() const;
 
 	//Return true if pos is inside the map boundaries
@@ -61,7 +64,7 @@ public:
 	uchar GetTileWalkability(const iPoint& pos) const;
 
 	//BFS functions
-	void PropagateBFS();
+	bool PropagateBFS(const iPoint& origin, const iPoint& goal);
 
 	//Dijkstra functions
 	void PropagateDijkstra();
@@ -92,7 +95,7 @@ public:
 	bool Is_Portal(int& x, int& y)const;
 
 	//Return the coordinates of the nearest portal from X point
-	iPoint GetBestPortal(const iPoint& goal)const;
+	iPoint GetBestPortal(const iPoint& goal);
 
 	//Return the coordinate of the nearest X family portal to the goal
 	iPoint GetBestFamilyPortal(const iPoint& portal, const iPoint& goal)const;

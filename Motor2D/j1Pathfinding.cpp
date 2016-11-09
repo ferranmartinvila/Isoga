@@ -99,26 +99,27 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	iPoint current_goal = goal;
 	//Best portal enter
 	iPoint portal_A = GetBestPortal(origin);
-	/*goals.add(portal_A);
+	goals.add(portal_A);
 	//Best portal exit
 	iPoint portal_B = GetBestFamilyPortal(portal_A,goal);
-	goals.add(portal_B);
 	//Calculate portal way
 	iPoint goal_portal = GetBestPortal(goal);
-	while (portal_B != goal_portal) {
+	
+	while (portal_A != goal_portal) {
 		portal_A = GetBestPortal(portal_B);
 		goals.add(portal_A);
 		portal_B = GetBestFamilyPortal(portal_A, goal);
-		goals.add(portal_B);
 	}
-	if (goals.end == goals.end->prev)for (int k =0; k < 2;k++)goals.del(goals.end);
+
 	goals.add(goal);
 	//Calculates the distance using portals
-	*/
 
-	iPoint portal_B = GetBestPortal(goal);
+	//iPoint portal_B = GetBestPortal(goal);
 
 	uint portal_way_distance = origin.DistanceManhattan(portal_A) + goal.DistanceManhattan(portal_B);
+
+	//Calculate complex portal way
+
 
 	//If portal way is shortest current goal is reach the best portal start
 	if (portal_way_distance < origin.DistanceManhattan(goal))current_goal = portal_A;
@@ -233,6 +234,24 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 }
 
+bool j1Pathfinding::CanReach(const iPoint& origin, const iPoint& goal)
+{
+	uint distance_to_loop = origin.DistanceManhattan(goal) * 99;
+	
+	while (distance_to_loop > 0) {
+		if (PropagateBFS(origin, goal)) {
+			ResetPath();
+			LOG("TRUE");
+			return true;
+		}
+
+			distance_to_loop--;
+	}
+	ResetPath();
+	LOG("FALSE");
+	return false;
+}
+
 const p2DynArray<iPoint>* j1Pathfinding::GetLastPath() const
 {
 	return &last_path;
@@ -328,13 +347,15 @@ bool j1Pathfinding::Is_Portal(int & x, int & y) const
 	return false;
 }
 
-iPoint j1Pathfinding::GetBestPortal(const iPoint& point) const
+iPoint j1Pathfinding::GetBestPortal(const iPoint& point)
 {
 	iPoint current;
 	
 	iPoint perf_point;
 	
-	perf_point = *portals.At(0)->At(0);
+	perf_point.x = width * 2;
+	perf_point.y = height * 2;
+
 
 	uint portals_family_num = portals.Count();
 
@@ -346,7 +367,7 @@ iPoint j1Pathfinding::GetBestPortal(const iPoint& point) const
 
 			current = *portals.At(k)->At(j);
 
-			if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point))perf_point = current;
+			if (current.DistanceManhattan(point) < perf_point.DistanceManhattan(point) && current != point && CanReach(current, point))perf_point = current;
 
 		}
 	}
@@ -357,8 +378,6 @@ iPoint j1Pathfinding::GetBestPortal(const iPoint& point) const
 iPoint j1Pathfinding::GetBestFamilyPortal(const iPoint& portal, const iPoint& goal) const
 {
 	iPoint current;
-
-	iPoint perf_point = portal;
 
 	uint portal_family;
 
@@ -381,23 +400,27 @@ iPoint j1Pathfinding::GetBestFamilyPortal(const iPoint& portal, const iPoint& go
 		}
 	}
 	portals_num = portals.At(portal_family)->Count();
+	
+	iPoint perf_point;
+	perf_point.x = width * 2;
+	perf_point.y = height * 2;
 
 	for (uint k = 0; k < portals_num; k++) {
 
 		iPoint temp = *portals.At(portal_family)->At(k);
-		if (temp.DistanceManhattan(goal) < portal.DistanceManhattan(goal) && temp != portal)perf_point = *portals.At(portal_family)->At(k);
+		if (temp.DistanceManhattan(goal) < perf_point.DistanceManhattan(goal) && temp != portal)perf_point = temp;
 
 	}
 
 	return perf_point;
 }
 
-void j1Pathfinding::PropagateBFS()
+bool j1Pathfinding::PropagateBFS(const iPoint& origin, const iPoint& goal)
 {
 
 	if (close.find(goal) != -1) {
 		App->audio->PlayFx(App->scene->goal_find);
-		return;
+		return true;
 	}
 
 	iPoint point;
@@ -426,6 +449,8 @@ void j1Pathfinding::PropagateBFS()
 
 		}
 	}
+
+	return false;
 }
 
 void j1Pathfinding::PropagateDijkstra() {
@@ -479,9 +504,9 @@ void j1Pathfinding::Draw()
 	while (item)
 	{
 		point = item->data;
-		TileSet* tileset = App->map->GetTilesetFromTileId(26);
+		TileSet* tileset = App->map->GetTilesetFromTileId(27);
 
-		SDL_Rect r = tileset->GetTileRect(26);
+		SDL_Rect r = tileset->GetTileRect(27);
 		iPoint pos = App->map->MapToWorld(point.x, point.y);
 
 		App->render->Blit(tileset->texture, pos.x, pos.y, &r);
