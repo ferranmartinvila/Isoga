@@ -34,7 +34,7 @@ bool j1ModulePlayer::Start()
 	player_texture = App->tex->Load("textures/purple_robot.png");
 	
 	//Player Update rate
-	update_rate = 350;
+	update_rate = 250;
 	
 	//Position in the path when running it
 	path_cell = 0;
@@ -55,8 +55,88 @@ bool j1ModulePlayer::Start()
 
 bool j1ModulePlayer::PreUpdate()
 {
+	
+	return true;
+
+}
+
+bool j1ModulePlayer::Update(float dt)
+{
+
+	if (UpdateTick() == true) {
+
+		Update_LogicData();
+
+	}
+
+	Update_NonLogicData();
+
+	return true;
+}
+
+void j1ModulePlayer::Update_LogicData()
+{
+
+	//Player Input Move
+	if (player_direction == WEST) { player_coordinates.x--; player_coordinates.y++; player_direction = NO_DIR; }
+	if (player_direction == NORTH_WEST) { player_coordinates.x--; player_direction = NO_DIR; }
+	if (player_direction == NORTH) { player_coordinates.y--; player_coordinates.x--; player_direction = NO_DIR; }
+	if (player_direction == NORTH_EAST) { player_coordinates.y--; player_direction = NO_DIR; }
+	if (player_direction == EAST) { player_coordinates.x++; player_coordinates.y--; player_direction = NO_DIR; }
+	if (player_direction == SOUTH_EAST) { player_coordinates.x++; player_direction = NO_DIR; }
+	if (player_direction == SOUTH) { player_coordinates.x++; player_coordinates.y++; player_direction = NO_DIR; }
+	if (player_direction == SOUTH_WEST) { player_coordinates.y++; player_direction = NO_DIR; }
+
+	//Player run the path
+	uint path_size = App->pathfinding->GetPathSize();
+
+	if (path_size > 0) {
+
+		if (path_cell <= path_size - 1 && player_coordinates == App->pathfinding->GetPathCell(path_cell)) {
+
+			if (path_cell < path_size - 1)path_cell++;
+
+			else {
+				//Path complete fx
+				App->audio->PlayFx(path_complete_fx);
+				//Reset player path cell
+				path_cell = 0;
+			}
+
+			//Update player coordinates
+			player_coordinates = App->pathfinding->GetPathCell(path_cell);
+
+			//Play steps fx
+			App->audio->PlayFx(steps_fx);
+			//Play portal fx
+			if (App->pathfinding->Is_Portal(player_coordinates.x, player_coordinates.y))App->audio->PlayFx(player_tp_fx);
+
+		}
+		else path_cell = 0;
+	}
+
+
+	//Player Independent Teleport
+	else {
+		
+		iPoint best_portal = App->pathfinding->GetBestPortal(App->pathfinding->goal);
+
+		if (player_coordinates != best_portal && App->pathfinding->Is_Portal(player_coordinates.x, player_coordinates.y)) {
+
+			//Tp player
+			player_coordinates = best_portal;
+			//Play portal fx
+			App->audio->PlayFx(player_tp_fx);
+		}
+	}
+
+}
+
+void j1ModulePlayer::Update_NonLogicData()
+{
+
 	//Update the player direction if get user input
-	if		(App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)player_direction = WEST;
+	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)player_direction = WEST;
 	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)player_direction = NORTH_WEST;
 	else if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)player_direction = NORTH;
 	else if (App->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)player_direction = NORTH_EAST;
@@ -65,69 +145,9 @@ bool j1ModulePlayer::PreUpdate()
 	else if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)player_direction = SOUTH;
 	else if (App->input->GetKey(SDL_SCANCODE_Z) == KEY_REPEAT)player_direction = SOUTH_WEST;
 
-	return true;
-}
-
-bool j1ModulePlayer::Update(float dt)
-{
-
-	//TickUpdate
-	if (UpdateTick() == true) {
-
-		//Player Input Move
-		if (player_direction == WEST) { player_coordinates.x--; player_coordinates.y++; player_direction = NO_DIR; }
-		if (player_direction == NORTH_WEST) { player_coordinates.x--; player_direction = NO_DIR; }
-		if (player_direction == NORTH) {  player_coordinates.y--; player_coordinates.x--; player_direction = NO_DIR; }
-		if (player_direction == NORTH_EAST) { player_coordinates.y--; player_direction = NO_DIR; }
-		if (player_direction == EAST) { player_coordinates.x++; player_coordinates.y--; player_direction = NO_DIR; }
-		if (player_direction == SOUTH_EAST) { player_coordinates.x++; player_direction = NO_DIR; }
-		if (player_direction == SOUTH) { player_coordinates.x++; player_coordinates.y++; player_direction = NO_DIR; }
-		if (player_direction == SOUTH_WEST) { player_coordinates.y++; player_direction = NO_DIR; }
-
-		//Player run the path
-		uint path_size = App->pathfinding->last_path.Count();
-		
-		if (path_size > 0) {
-		
-			if (path_cell <= path_size -1 && player_coordinates == *App->pathfinding->last_path.At(path_cell)) {
-				
-				if (path_cell < path_size - 1)path_cell++;
-				
-				else {
-					//Path complete fx
-					App->audio->PlayFx(path_complete_fx);
-					//Reset player path cell
-					path_cell = 0;
-				}
-
-				
-				player_coordinates = *App->pathfinding->last_path.At(path_cell);
-				//Play steps fx
-				App->audio->PlayFx(steps_fx);
-				if (App->pathfinding->Is_Portal(player_coordinates.x, player_coordinates.y))App->audio->PlayFx(player_tp_fx);
-
-			}
-			else path_cell = 0;
-		}
-
-		else {
-			//Player Independent Teleport
-			iPoint best_portal = App->pathfinding->GetBestPortal(App->pathfinding->goal);
-
-			if (player_coordinates != best_portal && App->pathfinding->Is_Portal(player_coordinates.x, player_coordinates.y)) {
-
-				//Tp player
-				player_coordinates = best_portal;
-				//Play portal fx
-				App->audio->PlayFx(player_tp_fx);
-			}
-		}
-	}
-
-	//Update
+	//Draw player
 	App->player->Draw();
 
-	return true;
 }
 
 bool j1ModulePlayer::PostUpdate()

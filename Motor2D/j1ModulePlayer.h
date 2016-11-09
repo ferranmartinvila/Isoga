@@ -35,7 +35,12 @@ public:
 	// Called each loop iteration
 	bool PreUpdate();
 
+	//Player Update
 	bool Update(float dt);
+	//Player logic update
+	void Update_LogicData();
+	//Player constant update
+	void Update_NonLogicData();
 
 	// Called each loop iteration
 	bool PostUpdate();

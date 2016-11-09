@@ -118,10 +118,17 @@ private:
 	uint width;
 	uint height;
 
-public:
-
 	// we store the created path here
 	p2DynArray<iPoint> last_path;
+
+public:
+
+	//Get the size of the last path
+	uint GetPathSize()const;
+
+	//Get X cell of the last path
+	iPoint GetPathCell(uint cell)const;
+
 
 };
 

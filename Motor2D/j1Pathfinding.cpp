@@ -97,29 +97,34 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 	//Check the best way
 	iPoint current_goal;
+	
 	//Best portal enter
 	iPoint portal_A = GetBestPortal(origin, true);
 	goals.add(portal_A);
+	
 	//Best portal exit
 	iPoint portal_B = GetBestFamilyPortal(portal_A,goal);
 	goals.add(portal_B);
-	//Calculate portal way
+	
+	//Calculate nearest portal to the goal
 	iPoint goal_portal = GetBestPortal(goal,true);
 	
+	//Calculate all the portals in the portal way
 	while (portal_A != goal_portal && portal_B != goal_portal) {
+		
 		portal_A = GetBestPortal(portal_B, true);
 		goals.add(portal_A);
 		portal_B = GetBestFamilyPortal(portal_A, goal);
 		goals.add(portal_B);
-	}
 
+	}
 	goals.add(goal);
 
-	//iPoint portal_B = GetBestPortal(goal);
 
+	//Calculate normal distance
 	uint normal_distance = origin.DistanceManhattan(goal);
 
-	//Calculate complex portal way
+	//Calculate complex portal distance
 	uint portal_way_distance = 0;
 	portal_way_distance += origin.DistanceManhattan(goals.start->data);
 	uint size = goals.count();
@@ -127,24 +132,24 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 		portal_way_distance += goals.At(k)->data.DistanceManhattan(goals.At(k + 1)->data);
 		k++;
 	}
+	//Deletes the possible pointless last portal
 	if (CanReach(goals.end->prev->prev->data, goals.end->prev->data))goals.del(goals.end->prev);
 
 
-	//If portal way is shortest current goal is reach the best portal start
+	//Choose the best way(short and possible)
 	if (normal_distance < portal_way_distance && CanReach(origin,goal)) {
 		goals.clear(); 
 		goals.add(goal);
 	}
-
 	current_goal = goals.start->data;
 
 	//Origin node
 	PathNode origin_node(0,origin.DistanceManhattan(current_goal),origin,nullptr);
 
-	// Add the origin tile to open
+	//Add the origin tile to open
 	open_list.list.add(origin_node);
 
-	// Iterate while we have tile in the open list
+	//Iterate while we have tile in the open list
 	while (open_list.list.count() > 0) {
 
 		//Move the lowest score cell from open list to the closed list
@@ -158,7 +163,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 		
 
 		
-		// TODO 4: If we just added the destination, we are done!
+		//If we just added the destination, we are done!
 		if (close_list.list.end->data.pos == current_goal) {
 			if (current_goal != goal) {
 
@@ -171,7 +176,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 			}
 			else {
-				// Backtrack to create the final path
+				//Backtrack to create the final path
 				for (p2List_item<PathNode>* node = close_list.list.end; node->data.parent != nullptr; node = close_list.Find(node->data.parent->pos)) {
 
 					last_path.PushBack(node->data.pos);
@@ -205,7 +210,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 			
 			p2List_item<PathNode>* node = open_list.Find(adjacent_node->data.pos);
 			
-			// If it is already in the open list 
+			//If it is already in the open list 
 			if (node != NULL) {
 
 
@@ -213,7 +218,7 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 				adjacent_node->data.CalculateF(current_goal);
 				if (adjacent_node->data.g < node->data.g) {
 
-					// If it is a better path, Update the parent
+					//If it is a better path, Update the parent
 					node->data.parent = adjacent_node->data.parent;
 
 				}
@@ -239,7 +244,7 @@ bool j1Pathfinding::CanReach(const iPoint& origin, const iPoint& goal)
 	p2List<iPoint> close_list;
 	p2Queue<iPoint> open_list;
 	open_list.Push(origin);
-	uint distance_to_loop = origin.DistanceManhattan(goal) * 99;
+	uint distance_to_loop = origin.DistanceManhattan(goal) * 8;
 	
 	while (distance_to_loop > 0) {
 		if (PropagateBFS(origin, goal, &close_list, &open_list)) {
@@ -421,6 +426,16 @@ iPoint j1Pathfinding::GetBestFamilyPortal(const iPoint& portal, const iPoint& go
 	}
 
 	return perf_point;
+}
+
+uint j1Pathfinding::GetPathSize() const
+{
+	return last_path.Count();
+}
+
+iPoint j1Pathfinding::GetPathCell(uint cell) const
+{
+	return *last_path.At(cell);
 }
 
 bool j1Pathfinding::PropagateBFS(const iPoint& origin, const iPoint& goal, p2List<iPoint>* close_list = nullptr, p2Queue<iPoint>* open_list = nullptr)
