@@ -465,6 +465,13 @@ bool j1Map::LoadMap()
 	return ret;
 }
 
+bool j1Map::UnLoadMap()
+{
+
+	return data.UnLoadLayer();
+
+}
+
 bool j1Map::LoadTilesetDetails(pugi::xml_node& tileset_node, TileSet* set)
 {
 	bool ret = true;
@@ -613,4 +620,19 @@ bool j1Map::LoadProperties(pugi::xml_node& node, Properties& properties)
 	}
 
 	return ret;
+}
+
+bool MapData::UnLoadLayer()
+{
+
+	width = height = tile_width = tile_height = NULL;
+	background_color.r = 0;
+	background_color.g = 0;
+	background_color.b = 0;
+	background_color.a = 0;
+	type = MapTypes::MAPTYPE_UNKNOWN;
+	tilesets.clear();
+	layers.clear();
+
+	return false;
 }

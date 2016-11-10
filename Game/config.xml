@@ -27,8 +27,14 @@
     <folder>maps/</folder>
   </map>
 
-<player>
-	<coordinates x_tile = "20" y_tile = "4" />
-</player>
+  <player>
+    <coordinates x_tile = "20" y_tile = "4" />
+  </player>
+
+  <scene>
+   	<map_folder>init_portals_map.tmx</map_folder>
+  	<map_folder>portals_walk.tmx</map_folder>
+  	<map_folder>way_size_walk.tmx</map_folder>
+  </scene>
 
 </config>

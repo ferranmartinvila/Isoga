@@ -109,6 +109,8 @@ struct MapData
 	MapTypes			type;
 	p2List<TileSet*>	tilesets;
 	p2List<MapLayer*>	layers;
+
+	bool UnLoadLayer();
 };
 
 // ----------------------------------------------------
@@ -136,12 +138,18 @@ public:
 private:
 
 	bool LoadMap();
+
 	bool LoadTilesetDetails(pugi::xml_node& tileset_node, TileSet* set);
+	
 	bool LoadTilesetImage(pugi::xml_node& tileset_node, TileSet* set);
+	
 	bool LoadLayer(pugi::xml_node& node, MapLayer* layer);
+	
 	bool LoadProperties(pugi::xml_node& node, Properties& properties);
 
 public:
+
+	bool UnLoadMap();
 
 	MapData data;
 
@@ -152,7 +160,9 @@ public:
 	int MovementCost(int x, int y) const;
 
 	TileSet* GetTilesetFromTileId(int id) const;
+	
 	iPoint MapToWorld(int x, int y) const;
+	
 	iPoint WorldToMap(int x, int y) const;
 
 	void CollideLayer();

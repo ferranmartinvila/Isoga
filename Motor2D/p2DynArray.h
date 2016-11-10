@@ -87,6 +87,15 @@ public:
 		num_elements = 0;
 	}
 
+	bool Delete_All() {
+
+			Alloc(DYN_ARRAY_BLOCK_SIZE);
+			num_elements = 0;
+			mem_capacity = GetCapacity();
+
+			return mem_capacity > 0;
+	}
+
 	bool Insert(const VALUE& element, unsigned int position)
 	{
 		if (position > num_elements)

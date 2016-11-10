@@ -27,14 +27,11 @@ bool j1Scene::Awake(pugi::xml_node& config)
 {
 	LOG("Loading Scene");
 	
-	pugi::xml_node folder_node = config.child("map_folder");
-	
-	do {
+	for (pugi::xml_node map_tmx = config.child("map_folder"); map_tmx; map_tmx = map_tmx.next_sibling("map_folder")) {
 
-		map_folder.PushBack(folder_node.child_value());
-		folder_node = folder_node.next_sibling("map_folder");
+		map_folder.PushBack(map_tmx.child_value());
 
-	} while (folder_node != NULL);
+	}
 	
 	bool ret = true;
 
@@ -44,39 +41,11 @@ bool j1Scene::Awake(pugi::xml_node& config)
 // Called before the first frame
 bool j1Scene::Start()
 {
+	bool ret = false;
+
 	//Load the map
-	if (App->map->Load(map_folder.At(0)->GetString())) {
+	ret = Load_Current_Map();
 
-		int w, h;
-		uchar* data = NULL;
-		
-		//Create Walkability Map
-		if (App->map->CreateWalkabilityMap(w, h, &data))
-			App->pathfinding->SetWalkabilityMap(w, h, data);
-
-		RELEASE_ARRAY(data);
-
-		//Create walk Cost Map
-		if (App->map->CreateWalkCostMap(w, h, &data)) {
-			App->pathfinding->SetWalkCostMap(w, h, data);
-		}
-
-		RELEASE_ARRAY(data);
-
-		//Create Way Size Map
-		if (App->pathfinding->CreateWaySizeMap(w, h, &data)) {
-
-			App->pathfinding->SetWaySizeMap(w, h, data);
-
-		}
-
-		RELEASE_ARRAY(data);
-
-		//Create Poratals
-		App->pathfinding->CreatePortals();
-
-
-	}
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");
 	
@@ -90,7 +59,7 @@ bool j1Scene::Start()
 	//Load fonts
 	debug_font = App->tex->LoadFont("textures/debug_font.png", "!*#$%&`()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[[]|`", 1);
 
-	return true;
+	return ret;
 }
 
 // Called each loop iteration
@@ -159,8 +128,12 @@ bool j1Scene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_7) == KEY_DOWN)
 		App->pathfinding->CanReach(App->pathfinding->start, App->pathfinding->goal);
 
-	if (App->input->GetKey(SDL_SCANCODE_8) == KEY_DOWN)
-		current_map++;
+	if (App->input->GetKey(SDL_SCANCODE_8) == KEY_DOWN) {
+		Change_Map();
+		App->pathfinding->ResetPath();
+		App->map->UnLoadMap();
+		Load_Current_Map();
+	}
 
 	//DEBUG------------------------------------------------
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {
@@ -234,4 +207,50 @@ bool j1Scene::CleanUp()
 	LOG("Freeing scene");
 
 	return true;
+}
+
+void j1Scene::Change_Map()
+{
+	if (current_map < map_folder.Count() - 1)current_map++;
+	else current_map = 0;
+}
+
+bool j1Scene::Load_Current_Map()
+{
+	bool ret = false;
+	
+	if (App->map->Load(map_folder.At(current_map)->GetString())) {
+		
+		ret = true;
+		int w, h;
+		uchar* data = NULL;
+
+		//Create Walkability Map
+		if (App->map->CreateWalkabilityMap(w, h, &data))
+			App->pathfinding->SetWalkabilityMap(w, h, data);
+
+		RELEASE_ARRAY(data);
+
+		//Create walk Cost Map
+		if (App->map->CreateWalkCostMap(w, h, &data)) {
+			App->pathfinding->SetWalkCostMap(w, h, data);
+		}
+
+		RELEASE_ARRAY(data);
+
+		//Create Way Size Map
+		if (App->pathfinding->CreateWaySizeMap(w, h, &data)) {
+
+			App->pathfinding->SetWaySizeMap(w, h, data);
+
+		}
+
+		RELEASE_ARRAY(data);
+
+		//Create Poratals
+		App->pathfinding->CreatePortals();
+
+
+	}
+	return ret;
 }

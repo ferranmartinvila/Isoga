@@ -39,6 +39,14 @@ public:
 	//Map Folders
 	p2DynArray<p2SString> map_folder;
 
+	uint current_map;
+
+	//Change the current map
+	void Change_Map();
+
+	//Load the choosed Map
+	bool Load_Current_Map();
+
 	//Textures data
 	SDL_Texture* tex_goal;
 	SDL_Texture* tex_path;

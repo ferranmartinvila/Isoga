@@ -148,50 +148,57 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 
 	//Check the best way
 	iPoint current_goal;
-	
-	//Best portal enter
-	iPoint portal_A = GetBestPortal(origin, true);
-	goals.add(portal_A);
-	
-	//Best portal exit
-	iPoint portal_B = GetBestFamilyPortal(portal_A,goal);
-	goals.add(portal_B);
-	
-	//Calculate nearest portal to the goal
-	iPoint goal_portal = GetBestPortal(goal,true);
-	
-	//Calculate all the portals in the portal way
-	while (portal_A != goal_portal && portal_B != goal_portal) {
-		
-		portal_A = GetBestPortal(portal_B, true);
+
+	iPoint portal_B;
+
+	if (portals.Count() == 0)goals.add(goal);
+	else {
+		//Best portal enter
+		iPoint portal_A = GetBestPortal(origin, true);
 		goals.add(portal_A);
-		portal_B = GetBestFamilyPortal(portal_A, goal);
+
+		//Best portal exit
+		iPoint portal_B = GetBestFamilyPortal(portal_A, goal);
 		goals.add(portal_B);
 
-	}
-	goals.add(goal);
+		//Calculate nearest portal to the goal
+		iPoint goal_portal = GetBestPortal(goal, true);
 
+		//Calculate all the portals in the portal way
+		while (portal_A != goal_portal && portal_B != goal_portal) {
 
-	//Calculate normal distance
-	uint normal_distance = origin.DistanceManhattan(goal);
+			portal_A = GetBestPortal(portal_B, true);
+			goals.add(portal_A);
+			portal_B = GetBestFamilyPortal(portal_A, goal);
+			goals.add(portal_B);
 
-	//Calculate complex portal distance
-	uint portal_way_distance = 0;
-	portal_way_distance += origin.DistanceManhattan(goals.start->data);
-	uint size = goals.count();
-	for (uint k = 1; k < size; k++) {
-		portal_way_distance += goals.At(k)->data.DistanceManhattan(goals.At(k + 1)->data);
-		k++;
-	}
-	//Deletes the possible pointless last portal
-	if (CanReach(goals.end->prev->prev->data, goals.end->prev->data))goals.del(goals.end->prev);
-
-
-	//Choose the best way(short and possible)
-	if (normal_distance < portal_way_distance && CanReach(origin,goal)) {
-		goals.clear(); 
+		}
 		goals.add(goal);
+
+
+		//Calculate normal distance
+		uint normal_distance = origin.DistanceManhattan(goal);
+
+		//Calculate complex portal distance
+		uint portal_way_distance = 0;
+		portal_way_distance += origin.DistanceManhattan(goals.start->data);
+		uint size = goals.count();
+		for (uint k = 1; k < size; k++) {
+			portal_way_distance += goals.At(k)->data.DistanceManhattan(goals.At(k + 1)->data);
+			k++;
+		}
+		//Deletes the possible pointless last portal
+		if (CanReach(goals.end->prev->prev->data, goals.end->prev->data))goals.del(goals.end->prev);
+
+
+		//Choose the best way(short and possible)
+		if (normal_distance < portal_way_distance && CanReach(origin, goal)) {
+			goals.clear();
+			goals.add(goal);
+		}
 	}
+
+	//Set the current goal
 	current_goal = goals.start->data;
 
 	//Origin node
@@ -351,11 +358,12 @@ void j1Pathfinding::ResetPath()
 void j1Pathfinding::CreatePortals()
 {
 	//Need to do a best cleaner
-	A_portals.Clear();
-	B_portals.Clear();
-	C_portals.Clear();
-	D_portals.Clear();
-	E_portals.Clear();
+	A_portals.Delete_All();
+	B_portals.Delete_All();
+	C_portals.Delete_All();
+	D_portals.Delete_All();
+	E_portals.Delete_All();
+	portals.Clear();
 
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
@@ -382,11 +390,11 @@ void j1Pathfinding::CreatePortals()
 		}
 	}
 
-	portals.PushBack(A_portals);
-	portals.PushBack(B_portals);
-	portals.PushBack(C_portals);
-	portals.PushBack(D_portals);
-	portals.PushBack(E_portals);
+	if (A_portals.Count())portals.PushBack(A_portals);
+	if (B_portals.Count())portals.PushBack(B_portals);
+	if (C_portals.Count())portals.PushBack(C_portals);
+	if (D_portals.Count())portals.PushBack(D_portals);
+	if (E_portals.Count())portals.PushBack(E_portals);
 
 }
 
