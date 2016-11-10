@@ -71,12 +71,63 @@ void j1Pathfinding::SetWalkabilityMap(uint width, uint height, uchar* data)
 
 void j1Pathfinding::SetWalkCostMap(uint widht, uint height, uchar * data)
 {
-	this->width = width;
+	this->width = widht;
 	this->height = height;
 
 	RELEASE_ARRAY(walk_cost_map);
-	walk_cost_map = new uchar[width*height];
-	memcpy(walk_cost_map, data, width*height);
+	walk_cost_map = new uchar[widht*height];
+	memcpy(walk_cost_map, data, widht*height);
+}
+
+int j1Pathfinding::GetCellWaySize(const iPoint & point) const
+{
+	int way_size = 0;
+	if (IsWalkable(point))way_size++;
+
+	for (int k = 1; k < width; k++) {
+		
+		for (int y = 0; y < k; y++) {
+			for (int x = 0; x < k; x++) {
+				
+				//LOG("x: %i  Y: %i", point.x - (k - 1) + x, (point.y - (k - 1)) + y);
+				if (IsWalkable({ (point.x - (k - 1)) + x, (point.y - (k - 1)) + y }) == false) {
+					return k;
+				}
+				
+			}
+		}
+	}
+
+	return width;
+}
+
+bool j1Pathfinding::CreateWaySizeMap(uint widht, uint height, uchar ** data)
+{
+	uchar* way_data = new uchar[widht* height];
+	memset(way_data, 0, widht*height);
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < widht; x++) {
+
+			way_data[y*widht + x] = GetCellWaySize({x, y});
+
+		}
+	}
+
+	if (way_data == NULL)return false;
+	
+	*data = way_data;
+	return true;
+}
+
+void j1Pathfinding::SetWaySizeMap(uint widht, uint height, uchar * data)
+{
+	this->width = widht;
+	this->height = height;
+
+	RELEASE_ARRAY(way_size_map);
+	way_size_map = new uchar[widht*height];
+	memcpy(way_size_map, data, widht*height);
 }
 
 int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool diagonals, bool walk_cost) {

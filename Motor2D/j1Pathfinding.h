@@ -40,12 +40,6 @@ public:
 	bool SetPathStart(iPoint coordenate);
 	bool SetPathGoal(iPoint coordenate);
 
-	//Set walkability map
-	void SetWalkabilityMap(uint width, uint height, uchar* data);
-
-	//Set walk cost map
-	void SetWalkCostMap(uint widht, uint height, uchar* data);
-
 	//create a path from a to b
 	int CreatePath(const iPoint& origin, const iPoint& destination, bool diagonals, bool walk_cost = false);
 
@@ -69,13 +63,13 @@ public:
 	//Dijkstra functions
 	void PropagateDijkstra();
 
-	//A* functions
-
 
 	void ResetPath();
 
 	iPoint start;
 	iPoint goal;
+
+private:
 
 	p2DynArray<iPoint> A_portals;
 	p2DynArray<iPoint> B_portals;
@@ -111,8 +105,31 @@ private:
 
 	//All map walkability data
 	uchar* walkability_map;
+	
 	//All map walk cost data
 	uchar* walk_cost_map;
+
+	//All map way size data
+	uchar* way_size_map;
+
+public:
+
+	//Set walkability map
+	void SetWalkabilityMap(uint width, uint height, uchar* data);
+
+	//Set walk cost map
+	void SetWalkCostMap(uint widht, uint height, uchar* data);
+
+	//Get the cell X way size
+	int GetCellWaySize(const iPoint& point)const;
+	
+	//Create way size map
+	bool CreateWaySizeMap(uint widht, uint height, uchar** data);
+	
+	//Set way size map
+	void SetWaySizeMap(uint widht, uint height, uchar* data);
+
+private:
 
 	// size of the map
 	uint width;

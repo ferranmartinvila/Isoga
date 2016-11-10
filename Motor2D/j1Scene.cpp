@@ -44,13 +44,20 @@ bool j1Scene::Start()
 
 		RELEASE_ARRAY(data);
 
-		//Create walk Cost Map and Portals Array
+		//Create walk Cost Map
 		if (App->map->CreateWalkCostMap(w, h, &data)) {
 			App->pathfinding->SetWalkCostMap(w, h, data);
 		}
 
 		RELEASE_ARRAY(data);
 
+		//Create Way Size Map
+		if (App->pathfinding->CreateWaySizeMap(w, h, &data)) {
+
+			App->pathfinding->SetWaySizeMap(w, h, data);
+
+		}
+		//Create Poratals
 		App->pathfinding->CreatePortals();
 	}
 	//Load and play the music
