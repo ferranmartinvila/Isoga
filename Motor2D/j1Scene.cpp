@@ -34,10 +34,11 @@ bool j1Scene::Awake()
 bool j1Scene::Start()
 {
 	//Load the map
-	if (App->map->Load("portals_walk.tmx")) {
+	if (App->map->Load("way_size_walk.tmx")) {
 
 		int w, h;
 		uchar* data = NULL;
+		
 		//Create Walkability Map
 		if (App->map->CreateWalkabilityMap(w, h, &data))
 			App->pathfinding->SetWalkabilityMap(w, h, data);
@@ -57,8 +58,13 @@ bool j1Scene::Start()
 			App->pathfinding->SetWaySizeMap(w, h, data);
 
 		}
+
+		RELEASE_ARRAY(data);
+
 		//Create Poratals
 		App->pathfinding->CreatePortals();
+
+
 	}
 	//Load and play the music
 	App->audio->PlayMusic("audio/music/GOW_Pandora.ogg");

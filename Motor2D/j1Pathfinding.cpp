@@ -295,7 +295,7 @@ bool j1Pathfinding::CanReach(const iPoint& origin, const iPoint& goal)
 	p2List<iPoint> close_list;
 	p2Queue<iPoint> open_list;
 	open_list.Push(origin);
-	uint distance_to_loop = origin.DistanceManhattan(goal) * 8;
+	uint distance_to_loop = origin.DistanceManhattan(goal) * 12;
 	
 	while (distance_to_loop > 0) {
 		if (PropagateBFS(origin, goal, &close_list, &open_list)) {
@@ -324,7 +324,7 @@ bool j1Pathfinding::CheckBoundaries(const iPoint& pos) const
 		pos.y >= 0 && pos.y < (int)height);
 }
 
-bool j1Pathfinding::IsWalkable(const iPoint& pos) const
+bool j1Pathfinding::IsWalkable(const iPoint& pos, uint way_size) const
 {
 	uchar t = GetTileWalkability(pos);
 	return t != INVALID_WALK_CODE && t > 0;

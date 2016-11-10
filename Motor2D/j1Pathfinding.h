@@ -51,12 +51,6 @@ public:
 	//Return true if pos is inside the map boundaries
 	bool CheckBoundaries(const iPoint& pos) const;
 
-	//Returns true if the tile is walkable
-	bool IsWalkable(const iPoint& pos) const;
-
-	//Return the walkability value of a tile
-	uchar GetTileWalkability(const iPoint& pos) const;
-
 	//BFS functions
 	bool PropagateBFS( const iPoint& origin, const iPoint& goal, p2List<iPoint>* close_list, p2Queue<iPoint>* open_list);
 
@@ -128,6 +122,12 @@ public:
 	
 	//Set way size map
 	void SetWaySizeMap(uint widht, uint height, uchar* data);
+
+	//Returns true if the tile is walkable
+	bool IsWalkable(const iPoint& pos, uint way_size = 1) const;
+
+	//Return the walkability value of a tile
+	uchar GetTileWalkability(const iPoint& pos) const;
 
 private:
 
