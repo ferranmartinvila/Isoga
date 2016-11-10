@@ -155,10 +155,18 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 	else {
 		//Best portal enter
 		iPoint portal_A = GetBestPortal(origin, true);
-		goals.add(portal_A);
-
+		
 		//Best portal exit
 		iPoint portal_B = GetBestFamilyPortal(portal_A, goal);
+		
+		//Solve initial bad portal
+		if (portal_B.DistanceManhattan(goal) > portal_A.DistanceManhattan(goal)) {
+			portal_A = GetBestPortal(portal_A, true);
+			portal_B = GetBestFamilyPortal(portal_A, goal);
+		}
+
+		
+		goals.add(portal_A);
 		goals.add(portal_B);
 
 		//Calculate nearest portal to the goal
@@ -422,8 +430,8 @@ iPoint j1Pathfinding::GetBestPortal(const iPoint& point, bool walking)
 	
 	iPoint perf_point;
 	
-	perf_point.x = width * 2;
-	perf_point.y = height * 2;
+	perf_point.x = width * 5;
+	perf_point.y = height * 5;
 
 
 	uint portals_family_num = portals.Count();
