@@ -164,7 +164,7 @@ struct PathNode
 
 	// Fills a list (PathList) all valid adjacent pathnodes
 	uint FindWalkableAdjacents(PathList& list_to_fill, bool diagonals) const;
-	
+
 	// Calculates this tile score
 	int Score() const;
 	// Calculate the F for a specific destination tile

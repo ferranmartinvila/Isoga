@@ -25,7 +25,7 @@ bool j1Pathfinding::Awake(pugi::xml_node& config)
 {
 	LOG("Loading Pathfinding data");
 	bool ret = true;
-	goal.x = goal.y = 0;
+	goal.GetOut();
 	return ret;
 }
 
@@ -260,7 +260,14 @@ int j1Pathfinding::CreatePath(const iPoint& origin, const iPoint& goal, bool dia
 		//Fill a list of all adjancent nodes
 		PathList adjacent_nodes;
 		
+		
 		close_list.list.end->data.FindWalkableAdjacents(adjacent_nodes, diagonals);
+		
+		//Respect the corners 
+		if (adjacent_nodes.list.count() < 8 && diagonals) {
+			adjacent_nodes.list.clear();
+			close_list.list.end->data.FindWalkableAdjacents(adjacent_nodes, false);
+		}
 
 		//Iterate adjancent nodes:
 		for (p2List_item<PathNode>* adjacent_node = adjacent_nodes.list.start; adjacent_node != NULL; adjacent_node = adjacent_node->next) {
@@ -310,7 +317,7 @@ bool j1Pathfinding::CanReach(const iPoint& origin, const iPoint& goal)
 	p2List<iPoint> close_list;
 	p2Queue<iPoint> open_list;
 	open_list.Push(origin);
-	uint distance_to_loop = origin.DistanceManhattan(goal) * 12;
+	uint distance_to_loop = origin.DistanceManhattan(goal) * 25;
 	
 	while (distance_to_loop > 0) {
 		if (PropagateBFS(origin, goal, &close_list, &open_list)) {
@@ -359,7 +366,7 @@ void j1Pathfinding::ResetPath()
 	else {
 		open.Clear();
 		close.clear();
-		goal.SetToZero();
+		goal.GetOut();
 	}
 }
 
@@ -624,7 +631,7 @@ void j1Pathfinding::Draw()
 	}
 
 	//Draw goal
-	if (goal.IsZero() == false) {
+	if (goal.IsOut() == false) {
 		
 		iPoint pos = App->map->MapToWorld(goal.x, goal.y);
 		App->render->Blit(App->scene->tex_goal, pos.x, pos.y);
