@@ -15,6 +15,7 @@ j1Scene::j1Scene() : j1Module()
 {
 	debug_mode = false;
 	name.create("scene");
+	current_map = 0;
 }
 
 // Destructor
@@ -22,9 +23,19 @@ j1Scene::~j1Scene()
 {}
 
 // Called before render is available
-bool j1Scene::Awake()
+bool j1Scene::Awake(pugi::xml_node& config)
 {
 	LOG("Loading Scene");
+	
+	pugi::xml_node folder_node = config.child("map_folder");
+	
+	do {
+
+		map_folder.PushBack(folder_node.child_value());
+		folder_node = folder_node.next_sibling("map_folder");
+
+	} while (folder_node != NULL);
+	
 	bool ret = true;
 
 	return ret;
@@ -34,7 +45,7 @@ bool j1Scene::Awake()
 bool j1Scene::Start()
 {
 	//Load the map
-	if (App->map->Load("way_size_walk.tmx")) {
+	if (App->map->Load(map_folder.At(0)->GetString())) {
 
 		int w, h;
 		uchar* data = NULL;
@@ -147,6 +158,9 @@ bool j1Scene::Update(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_7) == KEY_DOWN)
 		App->pathfinding->CanReach(App->pathfinding->start, App->pathfinding->goal);
+
+	if (App->input->GetKey(SDL_SCANCODE_8) == KEY_DOWN)
+		current_map++;
 
 	//DEBUG------------------------------------------------
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {

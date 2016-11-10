@@ -2,6 +2,9 @@
 #define __j1SCENE_H__
 
 #include "j1Module.h"
+#include "p2DynArray.h"
+#include "p2SString.h"
+
 struct SDL_Texture;
 
 class j1Scene : public j1Module
@@ -14,7 +17,7 @@ public:
 	virtual ~j1Scene();
 
 	// Called before render is available
-	bool Awake();
+	bool Awake(pugi::xml_node&);
 
 	// Called before the first frame
 	bool Start();
@@ -32,6 +35,9 @@ public:
 	bool CleanUp();
 
 public:
+
+	//Map Folders
+	p2DynArray<p2SString> map_folder;
 
 	//Textures data
 	SDL_Texture* tex_goal;
