@@ -18,7 +18,11 @@ j1Pathfinding::j1Pathfinding() : j1Module(),walkability_map(NULL), last_path(DEF
 
 // Destructor
 j1Pathfinding::~j1Pathfinding()
-{}
+{
+	RELEASE_ARRAY(walkability_map);
+	RELEASE_ARRAY(walk_cost_map);
+	RELEASE_ARRAY(way_size_map);
+}
 
 // Called before render is available
 bool j1Pathfinding::Awake(pugi::xml_node& config)
